@@ -1,0 +1,34 @@
+{
+	"$schema": "./node_modules/wrangler/config-schema.json",
+	// Workers Static Assets (not Pages / Workers Sites)
+	"name": "angely-website",
+	"main": "@astrojs/cloudflare/entrypoints/server",
+	// Today's date — update when you intentionally bump runtime behavior
+	"compatibility_date": "2026-07-11",
+	"compatibility_flags": ["nodejs_compat"],
+	"assets": {
+		// Astro build output
+		"directory": "./dist",
+		"binding": "ASSETS",
+		// Multi-page site: serve 404.html for unknown paths (NOT SPA fallback)
+		"not_found_handling": "404-page"
+	},
+	"r2_buckets": [
+		{
+			// Serve photos/videos from this bucket via /media/* (see src/pages/media)
+			"binding": "MEDIA_BUCKET",
+			// TODO: replace with your actual R2 bucket name in the Cloudflare dashboard / here
+			"bucket_name": "angely-media"
+		}
+	],
+	// Public vars can also be set in the dashboard. Secrets (TURNSTILE_SECRET_KEY,
+	// RESEND_API_KEY) must be set via `wrangler secret put` or the dashboard —
+	// never commit real values.
+	"vars": {
+		// Optional: set PUBLIC_TURNSTILE_SITE_KEY here or via .env / dashboard
+		// "PUBLIC_TURNSTILE_SITE_KEY": "your-turnstile-site-key"
+	},
+	"observability": {
+		"enabled": true
+	}
+}

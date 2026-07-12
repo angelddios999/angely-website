@@ -1,0 +1,28 @@
+{
+  "name": "angely-website",
+  "type": "module",
+  "version": "0.1.0",
+  "description": "Angely's physical and digital art portfolio",
+  "engines": {
+    "node": ">=22.12.0"
+  },
+  "scripts": {
+    "dev": "astro dev",
+    "build": "wrangler types && astro build",
+    "preview": "astro preview",
+    "deploy": "npm run build && wrangler deploy",
+    "astro": "astro",
+    "generate-types": "wrangler types",
+    "cf-typegen": "wrangler types"
+  },
+  "dependencies": {
+    "@astrojs/cloudflare": "^14.1.2",
+    "@tailwindcss/vite": "^4.3.2",
+    "astro": "^7.0.7",
+    "tailwindcss": "^4.3.2",
+    "wrangler": "^4.110.0"
+  },
+  "devDependencies": {
+    "@types/node": "^26.1.1"
+  }
+}

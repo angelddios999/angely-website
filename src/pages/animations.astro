@@ -1,0 +1,38 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import VideoCard from "../components/VideoCard.astro";
+import { animations } from "../data/portfolio";
+---
+
+<BaseLayout
+  title="Animations"
+  description="Short animation studies and finished clips."
+>
+  <PageHeader
+    eyebrow="Motion"
+    title="Animations"
+    description="TODO: replace — short clips, studies, and loops. Videos load lazily with poster thumbnails from R2."
+  />
+  <section class="section-y">
+    <div class="container-page">
+      <ul class="grid gap-6 sm:grid-cols-2 lg:grid-cols-2">
+        {
+          animations.map((item) => (
+            <li>
+              <VideoCard item={item} />
+            </li>
+          ))
+        }
+      </ul>
+      <p class="mt-10 rounded-xl border border-dashed border-line bg-canvas-elevated px-4 py-3 text-sm text-ink-muted">
+        <!-- TODO: remove once real videos are uploaded -->
+        <strong class="text-ink">Media tip:</strong> upload each clip and its poster to R2 under the
+        keys listed in <code class="rounded bg-line/60 px-1">src/data/portfolio.ts</code>, then set
+        <code class="rounded bg-line/60 px-1">placeholder: false</code>.
+      </p>
+    </div>
+  </section>
+</BaseLayout>

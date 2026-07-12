@@ -1,0 +1,24 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import PhotoGrid from "../components/PhotoGrid.astro";
+import { digitalArt } from "../data/portfolio";
+---
+
+<BaseLayout
+  title="Digital Art"
+  description="Character design, environments, and digital illustration."
+>
+  <PageHeader
+    eyebrow="Gallery"
+    title="Digital art"
+    description="TODO: replace — character sheets, environments, and digital illustrations. Click any piece to expand."
+  />
+  <section class="section-y">
+    <div class="container-page">
+      <PhotoGrid items={digitalArt} />
+    </div>
+  </section>
+</BaseLayout>

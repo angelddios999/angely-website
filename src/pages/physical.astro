@@ -1,0 +1,24 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import PhotoGrid from "../components/PhotoGrid.astro";
+import { physicalArt } from "../data/portfolio";
+---
+
+<BaseLayout
+  title="Physical Art"
+  description="Drawings, paintings, and mixed-media work made on paper and canvas."
+>
+  <PageHeader
+    eyebrow="Gallery"
+    title="Physical art"
+    description="TODO: replace — sketchbook pages, finished drawings, paintings, and mixed media. Click any piece to expand."
+  />
+  <section class="section-y">
+    <div class="container-page">
+      <PhotoGrid items={physicalArt} />
+    </div>
+  </section>
+</BaseLayout>

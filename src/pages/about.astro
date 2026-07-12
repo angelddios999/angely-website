@@ -1,0 +1,47 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import { about } from "../data/portfolio";
+import { site } from "../data/site";
+---
+
+<BaseLayout title="About" description={`About ${site.name} — artist and animator.`}>
+  <PageHeader eyebrow="About" title={about.headline} description={about.lead} />
+
+  <section class="section-y">
+    <div class="container-page grid gap-12 lg:grid-cols-[1.4fr_0.8fr]">
+      <div class="space-y-5 text-base leading-relaxed text-ink-muted sm:text-lg">
+        {
+          about.body.map((para) => (
+            <p class="rounded-xl border border-dashed border-amber-200/80 bg-amber-50/40 px-4 py-3 text-ink-muted">
+              {para}
+            </p>
+          ))
+        }
+        <p class="text-sm text-amber-800">
+          <!-- TODO: replace bio paragraphs in src/data/portfolio.ts → about -->
+          Placeholder bio blocks are highlighted so they're easy to find.
+        </p>
+      </div>
+
+      <aside class="space-y-4">
+        <div class="rounded-2xl border border-line bg-canvas-elevated p-6 shadow-soft">
+          <p class="eyebrow">At a glance</p>
+          <dl class="mt-4 space-y-4">
+            {
+              about.highlights.map((h) => (
+                <div>
+                  <dt class="text-xs uppercase tracking-wider text-ink-subtle">{h.label}</dt>
+                  <dd class="mt-1 text-sm font-medium text-ink">{h.value}</dd>
+                </div>
+              ))
+            }
+          </dl>
+        </div>
+        <a href="/contact" class="btn-primary w-full">Get in touch</a>
+      </aside>
+    </div>
+  </section>
+</BaseLayout>

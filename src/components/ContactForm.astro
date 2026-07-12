@@ -1,0 +1,171 @@
+---
+/**
+ * Contact form → POST /api/contact
+ * Turnstile site key from PUBLIC_TURNSTILE_SITE_KEY (build-time public env).
+ */
+const siteKey = import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ?? "";
+const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
+---
+
+<form
+  id="contact-form"
+  class="mx-auto max-w-xl space-y-5"
+  method="POST"
+  action="/api/contact"
+  novalidate
+>
+  <div>
+    <label for="name" class="label-field">Name</label>
+    <input
+      id="name"
+      name="name"
+      type="text"
+      autocomplete="name"
+      required
+      maxlength="120"
+      class="input-field"
+      placeholder="Your name"
+    />
+  </div>
+
+  <div>
+    <label for="email" class="label-field">Email</label>
+    <input
+      id="email"
+      name="email"
+      type="email"
+      autocomplete="email"
+      required
+      maxlength="200"
+      class="input-field"
+      placeholder="you@example.com"
+    />
+  </div>
+
+  <div>
+    <label for="message" class="label-field">Message</label>
+    <textarea
+      id="message"
+      name="message"
+      required
+      rows="6"
+      maxlength="5000"
+      class="input-field resize-y"
+      placeholder="Say hello…"
+    ></textarea>
+  </div>
+
+  <!-- Cloudflare Turnstile -->
+  <div class="space-y-2">
+    {
+      hasSiteKey ? (
+        <div
+          class="cf-turnstile"
+          data-sitekey={siteKey}
+          data-theme="light"
+        />
+      ) : (
+        <div class="rounded-xl border border-dashed border-amber-300 bg-amber-50 px-4 py-3 text-sm text-amber-950">
+          <p class="font-medium">TODO: set PUBLIC_TURNSTILE_SITE_KEY</p>
+          <p class="mt-1 text-amber-900/80">
+            Add your Turnstile site key to <code class="rounded bg-amber-100 px-1">.env</code> (local)
+            or Worker vars (production). A hidden field is used so the form still posts in scaffold mode.
+          </p>
+          <input type="hidden" name="cf-turnstile-response" value="scaffold-placeholder-token" />
+        </div>
+      )
+    }
+  </div>
+
+  <div
+    id="form-status"
+    class="hidden rounded-xl px-4 py-3 text-sm"
+    role="status"
+    aria-live="polite"
+  >
+  </div>
+
+  <button type="submit" id="submit-btn" class="btn-primary w-full sm:w-auto">
+    Send message
+  </button>
+</form>
+
+{hasSiteKey && (
+  <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer></script>
+)}
+
+<script>
+  const form = document.getElementById("contact-form") as HTMLFormElement | null;
+  const status = document.getElementById("form-status");
+  const submitBtn = document.getElementById("submit-btn") as HTMLButtonElement | null;
+
+  function showStatus(kind: "ok" | "err", message: string) {
+    if (!status) return;
+    status.classList.remove("hidden", "bg-emerald-50", "text-emerald-900", "bg-red-50", "text-red-900");
+    if (kind === "ok") {
+      status.classList.add("bg-emerald-50", "text-emerald-900");
+    } else {
+      status.classList.add("bg-red-50", "text-red-900");
+    }
+    status.textContent = message;
+  }
+
+  form?.addEventListener("submit", async (e) => {
+    e.preventDefault();
+    if (!form || !submitBtn) return;
+
+    const data = new FormData(form);
+    const name = String(data.get("name") ?? "").trim();
+    const email = String(data.get("email") ?? "").trim();
+    const message = String(data.get("message") ?? "").trim();
+    const token = String(data.get("cf-turnstile-response") ?? "").trim();
+
+    if (!name || !email || !message) {
+      showStatus("err", "Please fill in your name, email, and message.");
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Sending…";
+    status?.classList.add("hidden");
+
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Accept: "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          message,
+          turnstileToken: token,
+        }),
+      });
+
+      const body = (await res.json().catch(() => ({}))) as {
+        ok?: boolean;
+        error?: string;
+      };
+
+      if (!res.ok || !body.ok) {
+        showStatus(
+          "err",
+          body.error || `Something went wrong (${res.status}). Please try again.`,
+        );
+        // Reset Turnstile if present
+        // @ts-expect-error turnstile global
+        if (typeof turnstile !== "undefined") turnstile.reset();
+        return;
+      }
+
+      showStatus("ok", "Message sent — thank you! I'll get back to you soon.");
+      form.reset();
+      // @ts-expect-error turnstile global
+      if (typeof turnstile !== "undefined") turnstile.reset();
+    } catch {
+      showStatus("err", "Network error — check your connection and try again.");
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Send message";
+    }
+  });
+</script>

@@ -1,0 +1,55 @@
+---
+/**
+ * Visually distinct stand-in for art that isn't in R2 yet.
+ * Marked with a TODO badge so placeholders are easy to find and replace.
+ */
+interface Props {
+  title: string;
+  hue?: number;
+  aspect?: "square" | "video" | "portrait" | "wide";
+  class?: string;
+  label?: string;
+}
+
+const {
+  title,
+  hue = 30,
+  aspect = "square",
+  class: className = "",
+  label = "Image",
+} = Astro.props;
+
+const aspectClass = {
+  square: "aspect-square",
+  video: "aspect-video",
+  portrait: "aspect-[3/4]",
+  wide: "aspect-[16/10]",
+}[aspect];
+
+const bg = `linear-gradient(145deg, hsl(${hue} 28% 78%) 0%, hsl(${(hue + 40) % 360} 22% 68%) 55%, hsl(${(hue + 80) % 360} 18% 58%) 100%)`;
+---
+
+<div
+  class:list={[
+    "relative flex w-full items-end overflow-hidden",
+    aspectClass,
+    className,
+  ]}
+  style={`background: ${bg}`}
+  role="img"
+  aria-label={`${label} placeholder: ${title}`}
+>
+  <!-- Decorative grain / shape so placeholders don't look empty -->
+  <div
+    class="pointer-events-none absolute inset-0 opacity-30"
+    style="background-image: radial-gradient(circle at 20% 20%, white 0, transparent 45%), radial-gradient(circle at 80% 70%, rgb(0 0 0 / 0.15) 0, transparent 40%);"
+  >
+  </div>
+  <span class="placeholder-badge">TODO: replace</span>
+  <div class="relative w-full bg-gradient-to-t from-black/45 to-transparent p-4 pt-10">
+    <p class="text-sm font-medium text-white drop-shadow-sm">{title}</p>
+    <p class="mt-0.5 text-[11px] uppercase tracking-wider text-white/75">
+      Placeholder · upload to R2
+    </p>
+  </div>
+</div>

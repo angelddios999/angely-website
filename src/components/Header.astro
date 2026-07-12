@@ -1,0 +1,98 @@
+---
+import { site } from "../data/site";
+
+const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
+
+function isActive(href: string) {
+  const clean = href.replace(/\/$/, "") || "/";
+  return pathname === clean;
+}
+---
+
+<header class="sticky top-0 z-40 border-b border-line/80 bg-canvas/85 backdrop-blur-md">
+  <div class="container-page flex h-16 items-center justify-between gap-4 sm:h-[4.25rem]">
+    <a href="/" class="group flex items-baseline gap-2">
+      <span class="font-display text-xl font-semibold tracking-tight text-ink sm:text-2xl">
+        {site.name}
+      </span>
+      <span class="hidden text-xs text-ink-subtle sm:inline">portfolio</span>
+    </a>
+
+    <!-- Desktop nav -->
+    <nav class="hidden items-center gap-1 md:flex" aria-label="Primary">
+      {
+        site.nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "rounded-full px-3 py-1.5 text-sm transition-colors",
+              isActive(item.href)
+                ? "bg-ink text-canvas-elevated"
+                : "text-ink-muted hover:bg-line/60 hover:text-ink",
+            ]}
+            aria-current={isActive(item.href) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </nav>
+
+    <!-- Mobile menu toggle -->
+    <button
+      type="button"
+      id="nav-toggle"
+      class="inline-flex h-10 w-10 items-center justify-center rounded-full border border-line bg-canvas-elevated text-ink md:hidden"
+      aria-expanded="false"
+      aria-controls="mobile-nav"
+      aria-label="Open menu"
+    >
+      <svg id="icon-open" class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round" />
+      </svg>
+      <svg id="icon-close" class="hidden h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+        <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+      </svg>
+    </button>
+  </div>
+
+  <nav
+    id="mobile-nav"
+    class="hidden border-t border-line bg-canvas md:hidden"
+    aria-label="Mobile"
+  >
+    <div class="container-page flex flex-col gap-1 py-3">
+      {
+        site.nav.map((item) => (
+          <a
+            href={item.href}
+            class:list={[
+              "rounded-xl px-3 py-3 text-base",
+              isActive(item.href)
+                ? "bg-accent-soft font-medium text-ink"
+                : "text-ink-muted hover:bg-line/50 hover:text-ink",
+            ]}
+            aria-current={isActive(item.href) ? "page" : undefined}
+          >
+            {item.label}
+          </a>
+        ))
+      }
+    </div>
+  </nav>
+</header>
+
+<script>
+  const toggle = document.getElementById("nav-toggle");
+  const panel = document.getElementById("mobile-nav");
+  const iconOpen = document.getElementById("icon-open");
+  const iconClose = document.getElementById("icon-close");
+
+  toggle?.addEventListener("click", () => {
+    const open = panel?.classList.toggle("hidden") === false;
+    toggle.setAttribute("aria-expanded", String(open));
+    toggle.setAttribute("aria-label", open ? "Close menu" : "Open menu");
+    iconOpen?.classList.toggle("hidden", open);
+    iconClose?.classList.toggle("hidden", !open);
+  });
+</script>

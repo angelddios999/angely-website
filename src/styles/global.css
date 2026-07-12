@@ -1,0 +1,108 @@
+@import "tailwindcss";
+
+/*
+  Theme tokens — swap these to restyle the whole site, or layer an Astro theme
+  on top. Prefer CSS custom properties over hard-coded colors in components.
+*/
+@theme {
+  --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+  --font-display: "Fraunces", ui-serif, Georgia, "Times New Roman", serif;
+
+  --color-canvas: #f7f4ef;
+  --color-canvas-elevated: #fffcf8;
+  --color-ink: #1c1917;
+  --color-ink-muted: #57534e;
+  --color-ink-subtle: #a8a29e;
+  --color-line: #e7e0d6;
+  --color-accent: #b4533a;
+  --color-accent-soft: #f3e0d8;
+  --color-accent-hover: #933c28;
+  --color-placeholder: #d6cfc4;
+  --color-placeholder-ink: #78716c;
+
+  --shadow-soft: 0 1px 2px rgb(28 25 23 / 0.04), 0 8px 24px rgb(28 25 23 / 0.06);
+  --shadow-lift: 0 4px 12px rgb(28 25 23 / 0.08), 0 20px 40px rgb(28 25 23 / 0.08);
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    @apply bg-canvas text-ink font-sans antialiased;
+    font-feature-settings: "ss01" on, "cv11" on;
+  }
+
+  ::selection {
+    background: var(--color-accent-soft);
+    color: var(--color-ink);
+  }
+
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 3px;
+  }
+
+  h1,
+  h2,
+  h3,
+  .font-display {
+    font-family: var(--font-display);
+    font-optical-sizing: auto;
+  }
+}
+
+@layer components {
+  .container-page {
+    @apply mx-auto w-full max-w-6xl px-5 sm:px-8;
+  }
+
+  .section-y {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+
+  .eyebrow {
+    @apply text-xs font-medium uppercase tracking-[0.18em] text-ink-muted;
+  }
+
+  .link-underline {
+    @apply underline decoration-line underline-offset-4 transition-colors hover:decoration-accent hover:text-accent;
+  }
+
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas-elevated transition-all duration-200 hover:bg-accent;
+  }
+
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-canvas-elevated px-5 py-2.5 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/20 hover:bg-white;
+  }
+
+  .card-media {
+    @apply overflow-hidden rounded-2xl bg-placeholder shadow-soft transition duration-300;
+  }
+
+  .card-media:hover {
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-2px);
+  }
+
+  .placeholder-badge {
+    @apply absolute left-3 top-3 z-10 rounded-full bg-amber-100/95 px-2.5 py-1 text-[10px] font-semibold uppercase tracking-wider text-amber-900 ring-1 ring-amber-200/80;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-line bg-canvas-elevated px-4 py-3 text-sm text-ink placeholder:text-ink-subtle transition focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20;
+  }
+
+  .label-field {
+    @apply mb-1.5 block text-sm font-medium text-ink;
+  }
+}
+
+/* Lightbox open state */
+body.lightbox-open {
+  overflow: hidden;
+}

@@ -1,0 +1,95 @@
+---
+import type { Animation } from "../data/portfolio";
+import { mediaUrl } from "../lib/media";
+import PlaceholderMedia from "./PlaceholderMedia.astro";
+
+interface Props {
+  item: Animation;
+}
+
+const { item } = Astro.props;
+---
+
+<article class="card-media flex flex-col">
+  {
+    item.placeholder ? (
+      <PlaceholderMedia
+        title={item.title}
+        hue={item.placeholderHue}
+        aspect="video"
+        label="Video"
+      />
+    ) : (
+      <div class="relative aspect-video bg-stone-900">
+        <video
+          class="h-full w-full object-cover"
+          controls
+          playsinline
+          preload="none"
+          poster={mediaUrl(item.posterKey)}
+          data-src={mediaUrl(item.videoKey)}
+        >
+          <source data-src={mediaUrl(item.videoKey)} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+      </div>
+    )
+  }
+  <div class="flex flex-1 flex-col gap-1 border-t border-line/80 bg-canvas-elevated p-4">
+    <div class="flex items-start justify-between gap-3">
+      <h3 class="font-display text-lg font-medium text-ink">{item.title}</h3>
+      {
+        item.year && (
+          <span class="shrink-0 text-xs text-ink-subtle">{item.year}</span>
+        )
+      }
+    </div>
+    {
+      item.description && (
+        <p class="text-sm leading-relaxed text-ink-muted">{item.description}</p>
+      )
+    }
+    {
+      !item.placeholder && (
+        <p class="mt-1 text-[11px] text-ink-subtle">
+          Lazy-loaded · poster from R2 · <code class="text-[10px]">/media/{item.videoKey}</code>
+        </p>
+      )
+    }
+  </div>
+</article>
+
+<script>
+  // Lazy-load video sources when the card nears the viewport
+  const videos = document.querySelectorAll<HTMLVideoElement>("video[data-src]");
+  if ("IntersectionObserver" in window) {
+    const io = new IntersectionObserver(
+      (entries) => {
+        for (const entry of entries) {
+          if (!entry.isIntersecting) continue;
+          const video = entry.target as HTMLVideoElement;
+          const src = video.dataset.src;
+          if (src && !video.src) {
+            video.src = src;
+            const source = video.querySelector("source");
+            if (source && source.dataset.src) {
+              source.src = source.dataset.src;
+            }
+            video.load();
+          }
+          io.unobserve(video);
+        }
+      },
+      { rootMargin: "200px 0px" },
+    );
+    videos.forEach((v) => io.observe(v));
+  } else {
+    videos.forEach((video) => {
+      const src = video.dataset.src;
+      if (src) {
+        video.src = src;
+        video.load();
+      }
+    });
+  }
+</script>

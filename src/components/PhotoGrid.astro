@@ -1,0 +1,208 @@
+---
+import type { Artwork } from "../data/portfolio";
+import { mediaUrl } from "../lib/media";
+import PlaceholderMedia from "./PlaceholderMedia.astro";
+
+interface Props {
+  items: Artwork[];
+  /** Enable category filter chips */
+  filterable?: boolean;
+  /** Slightly denser grid on home */
+  compact?: boolean;
+}
+
+const { items, filterable = true, compact = false } = Astro.props;
+const categories = [...new Set(items.map((i) => i.category))];
+---
+
+<section class="photo-grid-root" data-photo-grid>
+  {
+    filterable && categories.length > 1 && (
+      <div class="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
+        <button
+          type="button"
+          class="filter-chip is-active rounded-full border border-ink bg-ink px-3.5 py-1.5 text-xs font-medium text-canvas-elevated transition"
+          data-filter="all"
+        >
+          All
+        </button>
+        {categories.map((cat) => (
+          <button
+            type="button"
+            class="filter-chip rounded-full border border-line bg-canvas-elevated px-3.5 py-1.5 text-xs font-medium text-ink-muted transition hover:border-ink/25 hover:text-ink"
+            data-filter={cat}
+          >
+            {cat}
+          </button>
+        ))}
+      </div>
+    )
+  }
+
+  <ul
+    class:list={[
+      "grid gap-4 sm:gap-5",
+      compact
+        ? "grid-cols-2 md:grid-cols-3"
+        : "grid-cols-1 sm:grid-cols-2 lg:grid-cols-3",
+    ]}
+  >
+    {
+      items.map((item, index) => (
+        <li data-category={item.category} class="photo-item">
+          <button
+            type="button"
+            class="group card-media relative block w-full cursor-zoom-in text-left focus-visible:outline-offset-4"
+            data-lightbox-open
+            data-id={item.id}
+            data-title={item.title}
+            data-description={item.description ?? ""}
+            data-src={item.placeholder ? "" : mediaUrl(item.key)}
+            data-placeholder={item.placeholder ? "true" : "false"}
+            data-hue={item.placeholderHue ?? 30}
+            data-meta={[item.category, item.year].filter(Boolean).join(" · ")}
+            aria-label={`View ${item.title}`}
+          >
+            {item.placeholder ? (
+              <PlaceholderMedia
+                title={item.title}
+                hue={item.placeholderHue}
+                aspect={index % 5 === 1 ? "portrait" : "square"}
+              />
+            ) : (
+              <div class:list={["relative w-full overflow-hidden", index % 5 === 1 ? "aspect-[3/4]" : "aspect-square"]}>
+                <img
+                  src={mediaUrl(item.key)}
+                  alt={item.title}
+                  loading="lazy"
+                  decoding="async"
+                  class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                />
+              </div>
+            )}
+            <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent p-4 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
+              <p class="text-sm font-medium text-white">{item.title}</p>
+              <p class="text-xs text-white/80">
+                {item.category}
+                {item.year ? ` · ${item.year}` : ""}
+              </p>
+            </div>
+          </button>
+        </li>
+      ))
+    }
+  </ul>
+
+  <!-- Lightbox dialog -->
+  <dialog
+    id="lightbox"
+    class="m-auto w-[min(100%,52rem)] max-h-[min(100%,90dvh)] overflow-hidden rounded-2xl border-0 bg-canvas-elevated p-0 shadow-lift backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
+    aria-label="Expanded artwork view"
+  >
+    <div class="relative flex max-h-[90dvh] flex-col">
+      <button
+        type="button"
+        id="lightbox-close"
+        class="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-ink/80 text-canvas-elevated transition hover:bg-ink"
+        aria-label="Close"
+      >
+        <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
+          <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
+        </svg>
+      </button>
+      <div id="lightbox-media" class="min-h-[12rem] bg-placeholder">
+        <!-- filled by script -->
+      </div>
+      <div class="border-t border-line px-5 py-4 sm:px-6">
+        <p id="lightbox-meta" class="eyebrow"></p>
+        <h2 id="lightbox-title" class="mt-1 font-display text-xl font-semibold text-ink sm:text-2xl"></h2>
+        <p id="lightbox-desc" class="mt-2 text-sm leading-relaxed text-ink-muted"></p>
+      </div>
+    </div>
+  </dialog>
+</section>
+
+<script>
+  function initPhotoGrid(root: HTMLElement) {
+    const chips = root.querySelectorAll<HTMLButtonElement>(".filter-chip");
+    const items = root.querySelectorAll<HTMLElement>(".photo-item");
+
+    chips.forEach((chip) => {
+      chip.addEventListener("click", () => {
+        const filter = chip.dataset.filter ?? "all";
+        chips.forEach((c) => {
+          const active = c === chip;
+          c.classList.toggle("is-active", active);
+          c.classList.toggle("bg-ink", active);
+          c.classList.toggle("text-canvas-elevated", active);
+          c.classList.toggle("border-ink", active);
+          c.classList.toggle("bg-canvas-elevated", !active);
+          c.classList.toggle("text-ink-muted", !active);
+          c.classList.toggle("border-line", !active);
+        });
+        items.forEach((item) => {
+          const show = filter === "all" || item.dataset.category === filter;
+          item.classList.toggle("hidden", !show);
+        });
+      });
+    });
+
+    const dialog = root.querySelector<HTMLDialogElement>("#lightbox");
+    const mediaEl = root.querySelector<HTMLElement>("#lightbox-media");
+    const titleEl = root.querySelector<HTMLElement>("#lightbox-title");
+    const descEl = root.querySelector<HTMLElement>("#lightbox-desc");
+    const metaEl = root.querySelector<HTMLElement>("#lightbox-meta");
+    const closeBtn = root.querySelector<HTMLButtonElement>("#lightbox-close");
+
+    function close() {
+      dialog?.close();
+      document.body.classList.remove("lightbox-open");
+      if (mediaEl) mediaEl.innerHTML = "";
+    }
+
+    function openFrom(btn: HTMLElement) {
+      if (!dialog || !mediaEl || !titleEl || !descEl || !metaEl) return;
+      const title = btn.dataset.title ?? "";
+      const description = btn.dataset.description ?? "";
+      const src = btn.dataset.src ?? "";
+      const isPlaceholder = btn.dataset.placeholder === "true";
+      const hue = Number(btn.dataset.hue ?? 30);
+      const meta = btn.dataset.meta ?? "";
+
+      titleEl.textContent = title;
+      descEl.textContent = description;
+      metaEl.textContent = meta;
+
+      if (isPlaceholder || !src) {
+        mediaEl.innerHTML = `
+          <div class="relative flex aspect-[4/3] w-full items-end" style="background: linear-gradient(145deg, hsl(${hue} 28% 78%), hsl(${(hue + 50) % 360} 20% 60%))">
+            <span class="placeholder-badge">TODO: replace</span>
+            <div class="w-full bg-gradient-to-t from-black/40 to-transparent p-6">
+              <p class="text-white/90 text-sm">Upload this piece to R2, then set <code class="rounded bg-white/20 px-1">placeholder: false</code> in content.</p>
+            </div>
+          </div>`;
+      } else {
+        mediaEl.innerHTML = `
+          <img src="${src}" alt="${title.replace(/"/g, "&quot;")}" class="max-h-[65dvh] w-full object-contain bg-stone-900" />`;
+      }
+
+      document.body.classList.add("lightbox-open");
+      dialog.showModal();
+    }
+
+    root.querySelectorAll<HTMLElement>("[data-lightbox-open]").forEach((btn) => {
+      btn.addEventListener("click", () => openFrom(btn));
+    });
+
+    closeBtn?.addEventListener("click", close);
+    dialog?.addEventListener("click", (e) => {
+      if (e.target === dialog) close();
+    });
+    dialog?.addEventListener("close", () => {
+      document.body.classList.remove("lightbox-open");
+      if (mediaEl) mediaEl.innerHTML = "";
+    });
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-photo-grid]").forEach(initPhotoGrid);
+</script>

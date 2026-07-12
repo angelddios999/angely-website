@@ -1,0 +1,44 @@
+---
+import { site } from "../data/site";
+
+const year = new Date().getFullYear();
+---
+
+<footer class="mt-auto border-t border-line bg-canvas-elevated">
+  <div class="container-page flex flex-col gap-6 py-10 sm:flex-row sm:items-end sm:justify-between">
+    <div>
+      <p class="font-display text-lg font-medium text-ink">{site.name}</p>
+      <p class="mt-1 max-w-sm text-sm text-ink-muted">
+        Physical art, digital illustration, and short animations.
+      </p>
+    </div>
+    <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-muted">
+      {
+        site.social.map((s) => (
+          <a
+            href={s.href}
+            class="link-underline"
+            {...(s.todo ? { "data-todo": "replace social URL" } : {})}
+          >
+            {s.label}
+            {s.todo && (
+              <span class="ml-1 text-[10px] uppercase tracking-wide text-amber-700">
+                TODO
+              </span>
+            )}
+          </a>
+        ))
+      }
+      <a href="/contact" class="link-underline">Contact</a>
+    </div>
+  </div>
+  <div class="border-t border-line/70">
+    <div class="container-page flex flex-col gap-1 py-4 text-xs text-ink-subtle sm:flex-row sm:justify-between">
+      <p>© {year} {site.name}. All rights reserved.</p>
+      <p>
+        <!-- TODO: replace site credit if desired -->
+        Built with Astro · Media on Cloudflare R2
+      </p>
+    </div>
+  </div>
+</footer>

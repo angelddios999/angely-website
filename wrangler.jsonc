@@ -5,7 +5,9 @@
 	"main": "@astrojs/cloudflare/entrypoints/server",
 	// Today's date — update when you intentionally bump runtime behavior
 	"compatibility_date": "2026-07-11",
-	"compatibility_flags": ["nodejs_compat"],
+	"compatibility_flags": [
+		"nodejs_compat"
+	],
 	"assets": {
 		// Astro build output
 		"directory": "./dist",
@@ -18,7 +20,7 @@
 			// Serve photos/videos from this bucket via /media/* (see src/pages/media)
 			"binding": "MEDIA_BUCKET",
 			// TODO: replace with your actual R2 bucket name in the Cloudflare dashboard / here
-			"bucket_name": "angely-media"
+			"bucket_name": "angely-portfolio-storage"
 		}
 	],
 	// Public vars can also be set in the dashboard. Secrets (TURNSTILE_SECRET_KEY,

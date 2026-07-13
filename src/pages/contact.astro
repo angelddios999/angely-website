@@ -1,10 +1,18 @@
 ---
-export const prerender = true;
+// Server-rendered so PUBLIC_TURNSTILE_SITE_KEY can come from Worker vars
+// (dashboard) without a rebuild. Still falls back to build-time import.meta.env.
+export const prerender = false;
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PageHeader from "../components/PageHeader.astro";
 import ContactForm from "../components/ContactForm.astro";
 import { site } from "../data/site";
+import { env } from "cloudflare:workers";
+
+const siteKey =
+  (import.meta.env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined)?.trim() ||
+  (env.PUBLIC_TURNSTILE_SITE_KEY as string | undefined)?.trim() ||
+  "";
 ---
 
 <BaseLayout title="Contact" description={`Contact ${site.name}.`}>
@@ -24,14 +32,19 @@ import { site } from "../data/site";
         </p>
         <p class="mt-6">
           <span class="eyebrow">Email</span>
-          <a href={`mailto:${site.contact.email}`} class="mt-1 block text-lg font-medium text-ink link-underline">
+          <a
+            href={`mailto:${site.contact.email}`}
+            class="mt-1 block text-lg font-medium text-ink link-underline"
+          >
             {site.contact.email}
           </a>
-          <span class="mt-1 block text-xs text-amber-800">TODO: replace contact email in src/data/site.ts</span>
+          <span class="mt-1 block text-xs text-amber-800"
+            >TODO: replace contact email in src/data/site.ts</span
+          >
         </p>
       </div>
       <div class="rounded-2xl border border-line bg-canvas-elevated p-6 shadow-soft sm:p-8">
-        <ContactForm />
+        <ContactForm siteKey={siteKey} />
       </div>
     </div>
   </section>

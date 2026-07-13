@@ -116,7 +116,9 @@ With the R2 binding in `wrangler.jsonc`, `astro dev` / `wrangler dev` can talk t
 
 | Variable | Where | Purpose |
 | --- | --- | --- |
-| `PUBLIC_TURNSTILE_SITE_KEY` | `.env` / Worker **vars** | Turnstile widget site key |
+| `PUBLIC_TURNSTILE_SITE_KEY` | `.env` (local) · Worker **Variables** (production) | Turnstile widget site key |
+
+The contact page is server-rendered so the site key can be read from Worker vars at runtime (no rebuild needed when you change it in the dashboard).
 
 ### Secrets (Worker only — never commit)
 
@@ -127,12 +129,27 @@ With the R2 binding in `wrangler.jsonc`, `astro dev` / `wrangler dev` can talk t
 | `CONTACT_FROM_EMAIL` | optional secret/var | Resend “from” address |
 | `CONTACT_TO_EMAIL` | optional secret/var | Inbox that receives form messages |
 
-Set production secrets without touching code:
+### Turnstile setup checklist
 
-```bash
-npx wrangler secret put TURNSTILE_SECRET_KEY
-npx wrangler secret put RESEND_API_KEY
-```
+1. Create a widget in [Cloudflare Turnstile](https://dash.cloudflare.com/?to=/:account/turnstile).
+2. Add hostnames to the widget (at least):
+   - `localhost` (local dev)
+   - your `*.workers.dev` host (e.g. `angely-website.<subdomain>.workers.dev`)
+   - any custom domain later
+3. **Local:** copy examples and fill in keys:
+   ```bash
+   cp .env.example .env
+   cp .dev.vars.example .dev.vars
+   # edit both files with your real site key + secret key
+   ```
+4. **Production (public site key):** Cloudflare dashboard → Workers & Pages → `angely-website` → Settings → Variables → add  
+   `PUBLIC_TURNSTILE_SITE_KEY` = your site key (plain text variable, not a secret).
+5. **Production (secret):**
+   ```bash
+   npx wrangler secret put TURNSTILE_SECRET_KEY
+   npx wrangler secret put RESEND_API_KEY   # when you have Resend ready
+   ```
+6. Redeploy if the Worker was already live: `npm run deploy`
 
 ---
 

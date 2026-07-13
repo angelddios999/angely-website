@@ -218,9 +218,9 @@ export const about = {
     "TODO: replace — another paragraph on process, school/work, or goals. Keep it warm and personal.",
   ],
   highlights: [
-    { label: "Focus", value: "Drawing · Digital art · Animation" },
-    { label: "Based in", value: "TODO: city / region" },
-    { label: "Available for", value: "TODO: commissions / collabs / school projects" },
+    { label: "Focus", value: "Drawing · Digital Art · Animation" },
+    { label: "Based in", value: "Seattle WA" },
+    { label: "Available for", value: "Commissions / Collabs / School Projects" },
   ],
 };
 

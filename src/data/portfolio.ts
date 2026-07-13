@@ -118,7 +118,6 @@ export const digitalArt: Artwork[] = [
     year: 2025,
     featured: true,
     placeholder: true,
-    placeholderHue: 280,
   },
   {
     id: "dig-2",
@@ -129,7 +128,6 @@ export const digitalArt: Artwork[] = [
     year: 2025,
     featured: true,
     placeholder: true,
-    placeholderHue: 195,
   },
   {
     id: "dig-3",
@@ -176,24 +174,25 @@ export const digitalArt: Artwork[] = [
 
 export const animations: Animation[] = [
   {
-    id: "anim-1",
-    title: "Walk Cycle Study",
-    description: "TODO: replace — short walk cycle practice clip.",
-    videoKey: "animations/walk-cycle.mp4",
-    posterKey: "animations/walk-cycle-poster.jpg",
+    id: "lift_off",
+    title: "Lift Off",
+    description: "Final project for the Sno-Isle Summer Animation 2005",
+    videoKey: "animation/lift_off.mp4",
+    posterKey: "animation/lift_off.png",
     year: 2025,
     featured: true,
-    placeholder: true,
+    placeholder: false,
     placeholderHue: 200,
   },
   {
-    id: "anim-2",
-    title: "Bouncing Ball",
-    description: "TODO: replace — timing and squash/stretch exercise.",
-    videoKey: "animations/bouncing-ball.mp4",
-    posterKey: "animations/bouncing-ball-poster.jpg",
+    id: "orbit",
+    title: "Orbit",
+    description: "Final project for the Sno-Isle Summer Animation 2004",
+    videoKey: "animation/orbit.mp4",
+    posterKey: "animation/orbit.png",
     year: 2024,
-    placeholder: true,
+    featured: true,
+    placeholder: false,
     placeholderHue: 15,
   },
   {

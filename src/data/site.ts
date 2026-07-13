@@ -3,8 +3,8 @@
  * TODO: replace placeholder bio/contact details with real content.
  */
 export const site = {
-  name: "Angely",
-  title: "Angely — Art & Animation Portfolio",
+  name: "Angely's",
+  title: "Angely's — Art & Animation Portfolio",
   description: "A portfolio of physical drawings, digital art, and short animations.",
   url: "https://angelydedios.com",
   nav: [

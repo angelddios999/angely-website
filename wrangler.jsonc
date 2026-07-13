@@ -12,8 +12,18 @@
 		// Astro build output
 		"directory": "./dist",
 		"binding": "ASSETS",
-		// Multi-page site: serve 404.html for unknown paths (NOT SPA fallback)
-		"not_found_handling": "404-page"
+		// Multi-page site: serve 404.html for unknown paths (NOT SPA fallback).
+		// With this mode + assets_navigation_prefers_asset_serving (default on
+		// recent compat dates), browser navigations that miss a static file
+		// get 404.html and never hit the Worker — so SSR routes MUST be listed
+		// in run_worker_first or they appear as 404 in production only.
+		"not_found_handling": "404-page",
+		"run_worker_first": [
+			"/contact",
+			"/contact/",
+			"/api/*",
+			"/media/*"
+		]
 	},
 	"r2_buckets": [
 		{

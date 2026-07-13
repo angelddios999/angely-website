@@ -159,6 +159,7 @@ The contact page is server-rendered so the site key can be read from Worker vars
 
 - `assets.directory` → `./dist` (Astro build output)
 - `assets.not_found_handling` → `404-page` (multi-page site, **not** SPA fallback)
+- `assets.run_worker_first` → SSR/API paths (`/contact`, `/api/*`, `/media/*`) so they are not swallowed by the static 404 handler
 - `main` → `@astrojs/cloudflare/entrypoints/server`
 - `compatibility_date` → set at scaffold time; bump intentionally when you want newer runtime behavior
 - `r2_buckets` → `MEDIA_BUCKET` binding

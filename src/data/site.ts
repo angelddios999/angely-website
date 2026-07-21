@@ -27,7 +27,7 @@ export const site = {
   ],
   contact: {
     // Display-only email on the contact page (form still goes through Resend)
-    email: "hello@example.com", // TODO: replace
+    email: "contact@angelydedios.com",
   },
   /** Legal note shown in the site footer */
   footerDisclaimer:

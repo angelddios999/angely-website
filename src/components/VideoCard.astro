@@ -49,13 +49,6 @@ const { item } = Astro.props;
         <p class="text-sm leading-relaxed text-ink-muted">{item.description}</p>
       )
     }
-    {
-      !item.placeholder && (
-        <p class="mt-1 text-[11px] text-ink-subtle">
-          Lazy-loaded · poster from R2 · <code class="text-[10px]">/media/{item.videoKey}</code>
-        </p>
-      )
-    }
   </div>
 </article>
 

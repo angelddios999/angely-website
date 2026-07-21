@@ -1,6 +1,6 @@
 # Angely — Art & Animation Portfolio
 
-A visual portfolio site for physical drawings, digital art, and short animations.
+A visual portfolio site for physical drawings, digital art, cartoons, and short animations.
 
 Built with **Astro** and **Tailwind CSS**, deployed as a **Cloudflare Worker** using **Workers Static Assets** (not Cloudflare Pages / Workers Sites). Photos and videos live in **Cloudflare R2** and are served by a Worker route — nothing media-heavy is stored in git.
 
@@ -26,13 +26,14 @@ Built with **Astro** and **Tailwind CSS**, deployed as a **Cloudflare Worker** u
 │   ├── components/         # UI pieces (Header, PhotoGrid, ContactForm, …)
 │   ├── data/
 │   │   ├── portfolio.ts    # ★ Artwork / animation catalog (R2 keys + copy)
-│   │   └── site.ts         # Site name, nav, contact email
+│   │   └── site.ts         # Site name, nav, contact, about bio/portrait
 │   ├── layouts/            # BaseLayout
 │   ├── lib/media.ts        # mediaUrl(key) → /media/<key>
 │   ├── pages/
 │   │   ├── index.astro     # Home
 │   │   ├── physical.astro  # Physical art gallery
 │   │   ├── digital.astro   # Digital art gallery
+│   │   ├── cartoons.astro  # Cartoonish people & animals
 │   │   ├── animations.astro
 │   │   ├── about.astro
 │   │   ├── contact.astro

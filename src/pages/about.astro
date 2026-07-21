@@ -3,11 +3,15 @@ export const prerender = true;
 
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PageHeader from "../components/PageHeader.astro";
-import { about } from "../data/portfolio";
+import PlaceholderMedia from "../components/PlaceholderMedia.astro";
 import { site } from "../data/site";
+import { mediaUrl } from "../lib/media";
+
+const { about } = site;
+const { portrait } = about;
 ---
 
-<BaseLayout title="About" description={`About ${site.name} — artist and animator.`}>
+<BaseLayout title="About" description={`About ${site.shortName} — artist and animator.`}>
   <PageHeader eyebrow="About" title={about.headline} description={about.lead} />
 
   <section class="section-y">
@@ -21,12 +25,36 @@ import { site } from "../data/site";
           ))
         }
         <p class="text-sm text-amber-800">
-          <!-- TODO: replace bio paragraphs in src/data/portfolio.ts → about -->
+          <!-- TODO: replace bio paragraphs in src/data/site.ts → site.about -->
           Placeholder bio blocks are highlighted so they're easy to find.
         </p>
       </div>
 
       <aside class="space-y-4">
+        <figure class="card-media overflow-hidden">
+          {
+            portrait.placeholder ? (
+              <PlaceholderMedia
+                title={site.shortName}
+                hue={portrait.placeholderHue}
+                aspect="portrait"
+                label="Portrait"
+              />
+            ) : (
+              <img
+                src={mediaUrl(portrait.key)}
+                alt={portrait.alt}
+                class="aspect-[3/4] w-full object-cover"
+                width={640}
+                height={853}
+                loading="eager"
+                decoding="async"
+              />
+            )
+          }
+          <figcaption class="sr-only">{portrait.alt}</figcaption>
+        </figure>
+
         <div class="rounded-2xl border border-line bg-canvas-elevated p-6 shadow-soft">
           <p class="eyebrow">At a glance</p>
           <dl class="mt-4 space-y-4">

@@ -1,0 +1,24 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../layouts/BaseLayout.astro";
+import PageHeader from "../components/PageHeader.astro";
+import PhotoGrid from "../components/PhotoGrid.astro";
+import { cartoons } from "../data/portfolio";
+---
+
+<BaseLayout
+  title="Cartoons"
+  description="Cartoonish digital drawings of people and animals Angely loves to draw."
+>
+  <PageHeader
+    eyebrow="Gallery"
+    title="Cartoons"
+    description="TODO: replace — playful, cartoonish digital portraits of people and animals. Click any piece to expand."
+  />
+  <section class="section-y">
+    <div class="container-page">
+      <PhotoGrid items={cartoons} />
+    </div>
+  </section>
+</BaseLayout>

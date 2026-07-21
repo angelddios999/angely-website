@@ -17,12 +17,10 @@ export type Artwork = {
   id: string;
   title: string;
   description?: string;
-  /** R2 object key for the image */
   key: string;
   category: string;
   year?: number;
   featured?: boolean;
-  /** When true, show a styled stand-in instead of loading from R2 */
   placeholder?: boolean;
   /** Hue (0–360) used for the placeholder gradient */
   placeholderHue?: number;
@@ -32,9 +30,7 @@ export type Animation = {
   id: string;
   title: string;
   description?: string;
-  /** R2 object key for the video file */
   videoKey: string;
-  /** R2 object key for the poster thumbnail */
   posterKey: string;
   year?: number;
   featured?: boolean;
@@ -172,13 +168,94 @@ export const digitalArt: Artwork[] = [
   },
 ];
 
+/**
+ * Cartoonish digital drawings of people and animals Angely loves to draw.
+ * Upload to R2 under keys like cartoons/friend-portrait.jpg.
+ */
+export const cartoons: Artwork[] = [
+  {
+    id: "cart-1",
+    title: "Best Friend Portrait",
+    description: "TODO: replace — cartoonish digital portrait of a person Angely loves to draw.",
+    key: "cartoons/best-friend-portrait.jpg",
+    category: "People",
+    year: 2025,
+    featured: true,
+    placeholder: true,
+    placeholderHue: 340,
+  },
+  {
+    id: "cart-2",
+    title: "Neighborhood Cat",
+    description: "TODO: replace — playful cartoon of a beloved animal.",
+    key: "cartoons/neighborhood-cat.jpg",
+    category: "Animals",
+    year: 2025,
+    featured: true,
+    placeholder: true,
+    placeholderHue: 30,
+  },
+  {
+    id: "cart-3",
+    title: "Sibling Sketch",
+    description: "TODO: replace — stylized digital cartoon of family.",
+    key: "cartoons/sibling-sketch.jpg",
+    category: "People",
+    year: 2024,
+    placeholder: true,
+    placeholderHue: 200,
+  },
+  {
+    id: "cart-4",
+    title: "Pup Portrait",
+    description: "TODO: replace — cartoon dog with big personality.",
+    key: "cartoons/pup-portrait.jpg",
+    category: "Animals",
+    year: 2025,
+    featured: true,
+    placeholder: true,
+    placeholderHue: 45,
+  },
+  {
+    id: "cart-5",
+    title: "Classroom Crew",
+    description: "TODO: replace — group cartoon of friends or classmates.",
+    key: "cartoons/classroom-crew.jpg",
+    category: "People",
+    year: 2024,
+    placeholder: true,
+    placeholderHue: 280,
+  },
+  {
+    id: "cart-6",
+    title: "Backyard Bird",
+    description: "TODO: replace — cute cartoon bird study.",
+    key: "cartoons/backyard-bird.jpg",
+    category: "Animals",
+    year: 2025,
+    placeholder: true,
+    placeholderHue: 160,
+  },
+];
+
 export const animations: Animation[] = [
+  {
+    id: "finding_sun",
+    title: "Finding Sun",
+    description: "Sno-Isle Summer Animation 2026 - First Place Winner",
+    videoKey: "animation/2026-finding_sun.mp4",
+    posterKey: "animation/2026-finding_sun.png",
+    year: 2026,
+    featured: true,
+    placeholder: false,
+    placeholderHue: 265,
+  },
   {
     id: "lift_off",
     title: "Lift Off",
-    description: "Final project for the Sno-Isle Summer Animation 2005",
-    videoKey: "animation/lift_off.mp4",
-    posterKey: "animation/lift_off.png",
+    description: "Sno-Isle Summer Animation 2025 - First Place Winner",
+    videoKey: "animation/2025-lift_off.mp4",
+    posterKey: "animation/2025-lift_off.png",
     year: 2025,
     featured: true,
     placeholder: false,
@@ -187,45 +264,26 @@ export const animations: Animation[] = [
   {
     id: "orbit",
     title: "Orbit",
-    description: "Final project for the Sno-Isle Summer Animation 2004",
-    videoKey: "animation/orbit.mp4",
-    posterKey: "animation/orbit.png",
+    description: "Sno-Isle Summer Animation 2024 - Second Place Winner",
+    videoKey: "animation/2024-orbit.mp4",
+    posterKey: "animation/2024-orbit.png",
     year: 2024,
     featured: true,
     placeholder: false,
     placeholderHue: 15,
   },
-  {
-    id: "anim-3",
-    title: "Title Card Loop",
-    description: "TODO: replace — looping intro title animation.",
-    videoKey: "animations/title-card.mp4",
-    posterKey: "animations/title-card-poster.jpg",
-    year: 2025,
-    featured: true,
-    placeholder: true,
-    placeholderHue: 265,
-  },
 ];
 
-export const about = {
-  // TODO: replace all bio copy
-  headline: "Making pictures move — and stand still.",
-  lead: "TODO: replace — short intro about who Angely is and what she makes.",
-  body: [
-    "TODO: replace — longer bio paragraph. Talk about media (pencil, paint, digital, animation), influences, and what this portfolio collects.",
-    "TODO: replace — another paragraph on process, school/work, or goals. Keep it warm and personal.",
-  ],
-  highlights: [
-    { label: "Focus", value: "Drawing · Digital Art · Animation" },
-    { label: "Based in", value: "Seattle WA" },
-    { label: "Available for", value: "Commissions / Collabs / School Projects" },
-  ],
-};
+/** Gallery path for an artwork based on its R2 key prefix */
+export function galleryHrefFor(item: Artwork): string {
+  if (item.key.startsWith("digital/")) return "/digital";
+  if (item.key.startsWith("cartoons/")) return "/cartoons";
+  return "/physical";
+}
 
 /** Featured pieces for the home page */
 export function getFeatured() {
-  const art = [...physicalArt, ...digitalArt].filter((a) => a.featured);
+  const art = [...physicalArt, ...digitalArt, ...cartoons].filter((a) => a.featured);
   const anim = animations.filter((a) => a.featured);
   return { art, anim };
 }

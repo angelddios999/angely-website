@@ -7,9 +7,9 @@ const year = new Date().getFullYear();
 <footer class="mt-auto border-t border-line bg-canvas-elevated">
   <div class="container-page flex flex-col gap-6 py-10 sm:flex-row sm:items-end sm:justify-between">
     <div>
-      <p class="font-display text-lg font-medium text-ink">{site.name}</p>
+      <p class="font-display text-lg font-medium text-ink">{site.fullName}</p>
       <p class="mt-1 max-w-sm text-sm text-ink-muted">
-        Physical art, digital illustration, and short animations.
+        Physical art, digital illustration, cartoons, and short animations.
       </p>
     </div>
     <div class="flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-ink-muted">
@@ -33,12 +33,11 @@ const year = new Date().getFullYear();
     </div>
   </div>
   <div class="border-t border-line/70">
-    <div class="container-page flex flex-col gap-1 py-4 text-xs text-ink-subtle sm:flex-row sm:justify-between">
-      <p>© {year} {site.name}. All rights reserved.</p>
-      <p>
-        <!-- TODO: replace site credit if desired -->
-        Built with Astro · Media on Cloudflare R2
-      </p>
+    <div class="container-page flex flex-col gap-3 py-4 text-xs text-ink-subtle">
+      <p class="w-full leading-relaxed">{site.footerDisclaimer}</p>
+      <div class="flex flex-col gap-1 sm:flex-row sm:justify-between">
+        <p>© {year} {site.fullName}. All rights reserved.</p>
+      </div>
     </div>
   </div>
 </footer>

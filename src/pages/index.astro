@@ -4,7 +4,14 @@ export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhotoGrid from "../components/PhotoGrid.astro";
 import { site } from "../data/site";
-import { getFeatured, physicalArt, digitalArt, animations } from "../data/portfolio";
+import {
+  getFeatured,
+  galleryHrefFor,
+  physicalArt,
+  digitalArt,
+  cartoons,
+  animations,
+} from "../data/portfolio";
 
 const { art } = getFeatured();
 const featured = art.slice(0, 6);
@@ -23,19 +30,21 @@ const featured = art.slice(0, 6);
       aria-hidden="true"
     >
     </div>
-    <div class="container-page relative grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-end lg:py-28">
+    <div class="container-page relative grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:py-28">
       <div>
-        <p class="eyebrow">Art · Illustration · Animation</p>
+        <p class="eyebrow">Art · Illustration · Cartoons · Animation</p>
         <h1 class="mt-4 font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl lg:text-6xl lg:leading-[1.08]">
           Pictures that hold still — and ones that move.
         </h1>
         <p class="mt-6 max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg">
           <!-- TODO: replace intro copy -->
-          Welcome to {site.name} portfolio — a growing collection of physical drawings,
-          digital art, and short animations. Explore the work, then get in touch.
+          Welcome to {site.shortName}'s portfolio — a growing collection of physical drawings,
+          digital art, cartoons of people and animals, and short animations. Explore the work,
+          then get in touch.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href="/physical" class="btn-primary">Browse physical art</a>
+          <a href="/cartoons" class="btn-secondary">See cartoons</a>
           <a href="/animations" class="btn-secondary">Watch animations</a>
         </div>
       </div>
@@ -43,9 +52,9 @@ const featured = art.slice(0, 6);
       <!-- Featured preview cards (placeholders until R2 media is live) -->
       <div class="grid grid-cols-2 gap-3 sm:gap-4">
         {
-          featured.slice(0, 4).map((item, i) => (
+          featured.slice(0, 3).map((item, i) => (
             <a
-              href={item.key.startsWith("digital") ? "/digital" : "/physical"}
+              href={galleryHrefFor(item)}
               class:list={[
                 "card-media relative block",
                 i === 0 && "col-span-2 aspect-[16/10]",
@@ -80,14 +89,15 @@ const featured = art.slice(0, 6);
         <p class="mt-4 max-w-2xl text-base leading-relaxed text-ink-muted sm:text-lg">
           <!-- TODO: replace short intro -->
           This site collects sketchbook pages, finished pieces, digital illustrations,
-          and animation studies. Everything is organized so new work can drop in easily —
-          upload media to R2, add one line to the content file, and it shows up here.
+          cartoonish drawings of people and animals, and animation studies. Everything is
+          organized so new work can drop in easily — upload media to R2, add one line to the
+          content file, and it shows up here.
         </p>
         <a href="/about" class="link-underline mt-5 inline-block text-sm font-medium">
-          More about {site.name} →
+          More about {site.shortName} →
         </a>
       </div>
-      <dl class="grid grid-cols-3 gap-4 lg:grid-cols-1 lg:gap-6">
+      <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-1 lg:gap-6">
         <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
           <dt class="text-xs uppercase tracking-wider text-ink-subtle">Physical</dt>
           <dd class="mt-1 font-display text-3xl font-semibold text-ink">{physicalArt.length}</dd>
@@ -95,6 +105,10 @@ const featured = art.slice(0, 6);
         <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
           <dt class="text-xs uppercase tracking-wider text-ink-subtle">Digital</dt>
           <dd class="mt-1 font-display text-3xl font-semibold text-ink">{digitalArt.length}</dd>
+        </div>
+        <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
+          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Cartoons</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{cartoons.length}</dd>
         </div>
         <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
           <dt class="text-xs uppercase tracking-wider text-ink-subtle">Animations</dt>
@@ -112,9 +126,11 @@ const featured = art.slice(0, 6);
           <p class="eyebrow">Selected work</p>
           <h2 class="mt-2 font-display text-3xl font-semibold text-ink">Featured pieces</h2>
         </div>
-        <div class="flex gap-4 text-sm">
+        <div class="flex flex-wrap gap-4 text-sm">
           <a href="/physical" class="link-underline">Physical</a>
           <a href="/digital" class="link-underline">Digital</a>
+          <a href="/cartoons" class="link-underline">Cartoons</a>
+          <a href="/animations" class="link-underline">Animations</a>
         </div>
       </div>
       <PhotoGrid items={featured} filterable={false} compact />

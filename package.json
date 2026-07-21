@@ -2,7 +2,7 @@
   "name": "angely-website",
   "type": "module",
   "version": "0.1.0",
-  "description": "Angely's physical and digital art portfolio",
+  "description": "Angely's physical, digital, cartoon, and animation art portfolio",
   "engines": {
     "node": ">=22.12.0"
   },

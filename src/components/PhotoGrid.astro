@@ -48,7 +48,7 @@ const categories = [...new Set(items.map((i) => i.category))];
     ]}
   >
     {
-      items.map((item, index) => (
+      items.map((item) => (
         <li data-category={item.category} class="photo-item">
           <button
             type="button"
@@ -67,16 +67,17 @@ const categories = [...new Set(items.map((i) => i.category))];
               <PlaceholderMedia
                 title={item.title}
                 hue={item.placeholderHue}
-                aspect={index % 5 === 1 ? "portrait" : "square"}
+                aspect="square"
               />
             ) : (
-              <div class:list={["relative w-full overflow-hidden", index % 5 === 1 ? "aspect-[3/4]" : "aspect-square"]}>
+              <div class="protect-media relative aspect-square w-full overflow-hidden">
                 <img
                   src={mediaUrl(item.key)}
                   alt={item.title}
                   loading="lazy"
                   decoding="async"
-                  class="h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  draggable="false"
+                  class="protect-media h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
                 />
               </div>
             )}
@@ -183,7 +184,7 @@ const categories = [...new Set(items.map((i) => i.category))];
           </div>`;
       } else {
         mediaEl.innerHTML = `
-          <img src="${src}" alt="${title.replace(/"/g, "&quot;")}" class="max-h-[65dvh] w-full object-contain bg-stone-900" />`;
+          <img src="${src}" alt="${title.replace(/"/g, "&quot;")}" draggable="false" class="protect-media max-h-[65dvh] w-full object-contain bg-stone-900" />`;
       }
 
       document.body.classList.add("lightbox-open");

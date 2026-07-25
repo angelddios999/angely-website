@@ -106,3 +106,16 @@
 body.lightbox-open {
   overflow: hidden;
 }
+
+/*
+  Soft media protection — deters casual save/drag/copy.
+  Not DRM: a determined user can still capture via DevTools or screenshots.
+*/
+.protect-media,
+.protect-media img,
+.protect-media video,
+#lightbox-media img {
+  -webkit-user-drag: none;
+  user-select: none;
+  -webkit-user-select: none;
+}

@@ -49,5 +49,35 @@ const pageTitle = title === site.title ? title : `${title} · ${site.shortName}`
       <slot />
     </main>
     <Footer />
+    <script>
+      // Soft-protect portfolio media: block right-click save and drag-to-desktop.
+      // This only raises the bar for casual copying — it is not true DRM.
+      function isProtectedMedia(target: EventTarget | null): boolean {
+        if (!(target instanceof Element)) return false;
+        if (target instanceof HTMLImageElement || target instanceof HTMLVideoElement) {
+          return (
+            target.classList.contains("protect-media") ||
+            !!target.closest(".protect-media, #lightbox-media, .card-media")
+          );
+        }
+        return !!target.closest(".protect-media, #lightbox-media");
+      }
+
+      document.addEventListener(
+        "contextmenu",
+        (e) => {
+          if (isProtectedMedia(e.target)) e.preventDefault();
+        },
+        { capture: true },
+      );
+
+      document.addEventListener(
+        "dragstart",
+        (e) => {
+          if (isProtectedMedia(e.target)) e.preventDefault();
+        },
+        { capture: true },
+      );
+    </script>
   </body>
 </html>

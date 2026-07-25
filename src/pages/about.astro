@@ -44,11 +44,12 @@ const { portrait } = about;
               <img
                 src={mediaUrl(portrait.key)}
                 alt={portrait.alt}
-                class="aspect-[3/4] w-full object-cover"
+                class="protect-media aspect-[3/4] w-full object-cover"
                 width={640}
                 height={853}
                 loading="eager"
                 decoding="async"
+                draggable="false"
               />
             )
           }

@@ -60,6 +60,9 @@ export const GET: APIRoute = async ({ params }) => {
   headers.set("etag", object.httpEtag);
   headers.set("Cache-Control", CACHE_CONTROL);
   headers.set("X-Content-Type-Options", "nosniff");
+  // Prefer inline display over forced download when the URL is opened directly.
+  const filename = key.split("/").pop() || key;
+  headers.set("Content-Disposition", `inline; filename="${filename.replace(/"/g, "")}"`);
 
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", guessContentType(key));

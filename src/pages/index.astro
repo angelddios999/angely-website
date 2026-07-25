@@ -4,6 +4,7 @@ export const prerender = true;
 import BaseLayout from "../layouts/BaseLayout.astro";
 import PhotoGrid from "../components/PhotoGrid.astro";
 import { site } from "../data/site";
+import { mediaUrl } from "../lib/media";
 import {
   getFeatured,
   galleryHrefFor,
@@ -11,10 +12,47 @@ import {
   digitalArt,
   cartoons,
   animations,
+  type Artwork,
 } from "../data/portfolio";
 
 const { art } = getFeatured();
 const featured = art.slice(0, 6);
+
+/** How many hero cards to show: 1 wide + 2 squares */
+const HERO_SLOT_COUNT = 3;
+
+type HeroCard = {
+  id: string;
+  title: string;
+  href: string;
+  src: string | null;
+  placeholder: boolean;
+  placeholderHue: number;
+};
+
+function toHeroCard(item: Artwork): HeroCard {
+  return {
+    id: item.id,
+    title: item.title,
+    href: galleryHrefFor(item),
+    src: item.placeholder === true ? null : mediaUrl(item.key),
+    placeholder: item.placeholder === true,
+    placeholderHue: item.placeholderHue ?? 30,
+  };
+}
+
+function shuffle<T>(items: T[]): T[] {
+  const arr = [...items];
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+const heroPool = art.map(toHeroCard);
+const heroInitial = shuffle(heroPool).slice(0, Math.min(HERO_SLOT_COUNT, heroPool.length));
+const heroPoolJson = JSON.stringify(heroPool);
 ---
 
 <BaseLayout title={site.title}>
@@ -49,27 +87,46 @@ const featured = art.slice(0, 6);
         </div>
       </div>
 
-      <!-- Featured preview cards (placeholders until R2 media is live) -->
-      <div class="grid grid-cols-2 gap-3 sm:gap-4">
+      <!-- Featured preview cards — random subset, rotates every 5s -->
+      <div
+        class="grid grid-cols-2 gap-3 sm:gap-4"
+        data-hero-rotator
+        data-interval-ms="5000"
+        data-pool={heroPoolJson}
+        aria-live="polite"
+      >
         {
-          featured.slice(0, 3).map((item, i) => (
+          heroInitial.map((item, i) => (
             <a
-              href={galleryHrefFor(item)}
+              href={item.href}
+              data-hero-slot
+              data-id={item.id}
               class:list={[
-                "card-media relative block",
+                "card-media protect-media relative block overflow-hidden transition-opacity duration-500 ease-out",
                 i === 0 && "col-span-2 aspect-[16/10]",
                 i !== 0 && "aspect-square",
               ]}
             >
-              <div
-                class="absolute inset-0"
-                style={`background: linear-gradient(145deg, hsl(${item.placeholderHue ?? 30} 28% 78%), hsl(${((item.placeholderHue ?? 30) + 50) % 360} 20% 60%))`}
-              />
-              {item.placeholder && (
-                <span class="placeholder-badge">TODO: replace</span>
-              )}
-              <div class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 pt-8">
-                <p class="text-sm font-medium text-white">{item.title}</p>
+              <div data-hero-media class="absolute inset-0">
+                {item.src ? (
+                  <img
+                    src={item.src}
+                    alt={item.title}
+                    loading={i === 0 ? "eager" : "lazy"}
+                    decoding="async"
+                    draggable="false"
+                    class="protect-media h-full w-full object-cover"
+                  />
+                ) : (
+                  <div
+                    class="h-full w-full"
+                    style={`background: linear-gradient(145deg, hsl(${item.placeholderHue} 28% 78%), hsl(${(item.placeholderHue + 50) % 360} 20% 60%))`}
+                  />
+                )}
+              </div>
+              {item.placeholder && <span data-hero-badge class="placeholder-badge">TODO: replace</span>}
+              <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/50 to-transparent p-3 pt-8">
+                <p data-hero-title class="text-sm font-medium text-white">{item.title}</p>
               </div>
             </a>
           ))
@@ -77,6 +134,144 @@ const featured = art.slice(0, 6);
       </div>
     </div>
   </section>
+
+  <script>
+    type HeroCard = {
+      id: string;
+      title: string;
+      href: string;
+      src: string | null;
+      placeholder: boolean;
+      placeholderHue: number;
+    };
+
+    function shuffle<T>(items: T[]): T[] {
+      const arr = [...items];
+      for (let i = arr.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [arr[i], arr[j]] = [arr[j], arr[i]];
+      }
+      return arr;
+    }
+
+    function sampleUnique(pool: HeroCard[], count: number, avoid: Set<string>): HeroCard[] {
+      if (pool.length === 0) return [];
+      const preferred = pool.filter((p) => !avoid.has(p.id));
+      const source = preferred.length >= count ? preferred : pool;
+      return shuffle(source).slice(0, Math.min(count, source.length));
+    }
+
+    function gradientStyle(hue: number): string {
+      return `background: linear-gradient(145deg, hsl(${hue} 28% 78%), hsl(${(hue + 50) % 360} 20% 60%))`;
+    }
+
+    function preload(src: string | null): Promise<void> {
+      if (!src) return Promise.resolve();
+      return new Promise((resolve) => {
+        const img = new Image();
+        img.onload = () => resolve();
+        img.onerror = () => resolve();
+        img.src = src;
+      });
+    }
+
+    function applyCard(slot: HTMLAnchorElement, item: HeroCard) {
+      slot.href = item.href;
+      slot.dataset.id = item.id;
+
+      const media = slot.querySelector<HTMLElement>("[data-hero-media]");
+      if (media) {
+        if (item.src) {
+          media.innerHTML = `<img src="${item.src}" alt="${item.title.replace(/"/g, "&quot;")}" draggable="false" class="protect-media h-full w-full object-cover" />`;
+        } else {
+          media.innerHTML = `<div class="h-full w-full" style="${gradientStyle(item.placeholderHue)}"></div>`;
+        }
+      }
+
+      const title = slot.querySelector<HTMLElement>("[data-hero-title]");
+      if (title) title.textContent = item.title;
+
+      let badge = slot.querySelector<HTMLElement>("[data-hero-badge]");
+      if (item.placeholder) {
+        if (!badge) {
+          badge = document.createElement("span");
+          badge.dataset.heroBadge = "";
+          badge.className = "placeholder-badge";
+          badge.textContent = "TODO: replace";
+          slot.appendChild(badge);
+        }
+      } else if (badge) {
+        badge.remove();
+      }
+    }
+
+    function initHeroRotator(root: HTMLElement) {
+      let pool: HeroCard[] = [];
+      try {
+        pool = JSON.parse(root.dataset.pool ?? "[]") as HeroCard[];
+      } catch {
+        return;
+      }
+
+      const slots = [...root.querySelectorAll<HTMLAnchorElement>("[data-hero-slot]")];
+      if (pool.length === 0 || slots.length === 0) return;
+
+      // Need more pieces than slots to make rotation meaningful
+      if (pool.length <= slots.length) return;
+
+      const intervalMs = Number(root.dataset.intervalMs ?? 5000);
+      let currentIds = new Set(slots.map((s) => s.dataset.id ?? "").filter(Boolean));
+      let timer: ReturnType<typeof setInterval> | null = null;
+      let fading = false;
+
+      async function rotate() {
+        if (fading || document.visibilityState === "hidden") return;
+        fading = true;
+
+        const next = sampleUnique(pool, slots.length, currentIds);
+        await Promise.all(next.map((item) => preload(item.src)));
+
+        for (const slot of slots) {
+          slot.style.opacity = "0";
+        }
+
+        await new Promise((r) => setTimeout(r, 400));
+
+        next.forEach((item, i) => {
+          if (slots[i]) applyCard(slots[i], item);
+        });
+        currentIds = new Set(next.map((item) => item.id));
+
+        // Force reflow so the fade-in always runs
+        void root.offsetWidth;
+        for (const slot of slots) {
+          slot.style.opacity = "1";
+        }
+
+        fading = false;
+      }
+
+      function start() {
+        if (timer != null) return;
+        timer = setInterval(rotate, intervalMs);
+      }
+
+      function stop() {
+        if (timer == null) return;
+        clearInterval(timer);
+        timer = null;
+      }
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") stop();
+        else start();
+      });
+
+      start();
+    }
+
+    document.querySelectorAll<HTMLElement>("[data-hero-rotator]").forEach(initHeroRotator);
+  </script>
 
   <!-- Short intro + stats -->
   <section class="section-y border-b border-line">

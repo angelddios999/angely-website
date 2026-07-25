@@ -20,10 +20,13 @@ const { item } = Astro.props;
         label="Video"
       />
     ) : (
-      <div class="relative aspect-video bg-stone-900">
+      <div class="protect-media relative aspect-video bg-stone-900">
         <video
-          class="h-full w-full object-cover"
+          class="protect-media h-full w-full object-cover"
           controls
+          controlsList="nodownload noremoteplayback"
+          disablePictureInPicture
+          disableRemotePlayback
           playsinline
           preload="none"
           poster={mediaUrl(item.posterKey)}

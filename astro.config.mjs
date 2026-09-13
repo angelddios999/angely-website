@@ -11,6 +11,24 @@ export default defineConfig({
     imageService: 'passthrough',
   }),
   vite: {
-    plugins: [tailwindcss()],
+    plugins: [
+      tailwindcss(),
+      // workerd still requests hashed SSR chunks after Vite rewrites them
+      // (e.g. base-*.js 404 in deps_ssr). Freeze discovery so hashes stay put.
+      {
+        name: 'stabilize-ssr-optimize-deps',
+        enforce: 'post',
+        configEnvironment(name) {
+          if (name === 'astro' || name === 'ssr' || name === 'prerender') {
+            return {
+              optimizeDeps: {
+                noDiscovery: true,
+                ignoreOutdatedRequests: true,
+              },
+            };
+          }
+        },
+      },
+    ],
   },
 });

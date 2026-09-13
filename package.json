@@ -16,13 +16,17 @@
     "cf-typegen": "wrangler types"
   },
   "dependencies": {
-    "@astrojs/cloudflare": "^14.1.2",
+    "@astrojs/cloudflare": "^14.3.1",
     "@tailwindcss/vite": "^4.3.2",
-    "astro": "^7.0.7",
+    "astro": "^7.3.2",
     "tailwindcss": "^4.3.2",
     "wrangler": "^4.110.0"
   },
   "devDependencies": {
     "@types/node": "^26.1.1"
+  },
+  "allowScripts": {
+    "esbuild@0.28.1": true,
+    "workerd@1.20260911.1": true
   }
 }

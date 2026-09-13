@@ -49,7 +49,7 @@ export const site = {
      * Upload to R2 under `key`, then set `placeholder: false`.
      */
     portrait: {
-      key: "about/portrait.png",
+      key: "about/portrait-2026.png",
       alt: "Portrait of Angely De Dios",
       placeholder: false,
     },

@@ -28,7 +28,7 @@ function guessContentType(key: string): string {
 type ImagesBinding = {
   input: (stream: ReadableStream) => {
     transform: (opts: { width: number; fit?: string }) => {
-      output: (opts: { format: string }) => Promise<{
+      output: (opts: { format: string; quality?: number }) => Promise<{
         response: (init?: { headers?: Record<string, string> }) => Response;
       }>;
     };
@@ -79,7 +79,7 @@ export const GET: APIRoute = async ({ params, url }) => {
       const transformed = await images
         .input(object.body)
         .transform({ width, fit: "scale-down" })
-        .output({ format: "image/webp" });
+        .output({ format: "image/webp", quality: 75 });
       return transformed.response({
         headers: {
           "Cache-Control": CACHE_CONTROL,

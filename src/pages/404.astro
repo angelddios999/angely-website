@@ -11,8 +11,13 @@ import BaseLayout from "../layouts/BaseLayout.astro";
       This page wandered off the page.
     </h1>
     <p class="mt-4 max-w-md text-ink-muted">
-      The link may be outdated, or the piece may have moved. Head home and explore from there.
+      The link may be outdated, or the piece may have moved. Try a gallery, or head home.
     </p>
-    <a href="/" class="btn-primary mt-8">Back home</a>
+    <div class="mt-8 flex flex-wrap gap-3">
+      <a href="/" class="btn-primary">Back home</a>
+      <a href="/physical" class="btn-secondary">Physical art</a>
+      <a href="/digital" class="btn-secondary">Digital art</a>
+      <a href="/stories" class="btn-secondary">Stories</a>
+    </div>
   </section>
 </BaseLayout>

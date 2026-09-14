@@ -76,9 +76,10 @@ const categories = [...new Set(items.map((i) => i.category))];
                 aspect="square"
               />
             ) : (
-              <div class="protect-media relative aspect-square w-full overflow-hidden">
+              <div class="protect-media relative aspect-square w-full overflow-hidden bg-canvas">
                 <img
                   src={mediaThumbUrl(item.key)}
+                  srcset={`${mediaUrl(item.key, { w: 480 })} 480w, ${mediaThumbUrl(item.key)} 800w`}
                   alt=""
                   width={800}
                   height={800}
@@ -86,7 +87,12 @@ const categories = [...new Set(items.map((i) => i.category))];
                   loading="lazy"
                   decoding="async"
                   draggable="false"
-                  class="protect-media h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                  class:list={[
+                    "protect-media h-full w-full transition duration-500 group-hover:scale-[1.03]",
+                    item.category === "Sculpture" || item.category === "Painting"
+                      ? "object-contain"
+                      : "object-cover",
+                  ]}
                 />
               </div>
             )}
@@ -112,7 +118,7 @@ const categories = [...new Set(items.map((i) => i.category))];
 
   <dialog
     id="lightbox"
-    class="m-auto w-[min(100%,64rem)] max-h-[min(100%,90dvh)] overflow-auto rounded-2xl border-0 bg-canvas-elevated p-0 shadow-lift backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
+    class="m-auto w-[min(100%,76rem)] max-h-[min(100%,90dvh)] overflow-auto rounded-2xl border-0 bg-canvas-elevated p-0 shadow-lift backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
     aria-labelledby="lightbox-title"
   >
     <div class="relative flex max-h-[90dvh] flex-col">
@@ -126,13 +132,13 @@ const categories = [...new Set(items.map((i) => i.category))];
           <path d="M6 6l12 12M18 6L6 18" stroke-linecap="round" />
         </svg>
       </button>
-      <div id="lightbox-media" class="min-h-[12rem] bg-placeholder">
+      <div id="lightbox-media" class="relative min-h-[12rem] overflow-hidden bg-stone-900">
       </div>
       <div class="border-t border-line px-5 py-4 sm:px-6">
         <p id="lightbox-meta" class="eyebrow"></p>
         <h2 id="lightbox-title" class="mt-1 font-display text-xl font-semibold text-ink sm:text-2xl"></h2>
         <p id="lightbox-desc" class="mt-2 text-sm leading-relaxed text-ink-muted"></p>
-        <div class="mt-4 flex gap-2">
+        <div class="mt-4 flex flex-wrap gap-2">
           <button type="button" id="lightbox-prev" class="btn-secondary px-4">Previous</button>
           <button type="button" id="lightbox-next" class="btn-secondary px-4">Next</button>
         </div>
@@ -252,19 +258,23 @@ const categories = [...new Set(items.map((i) => i.category))];
           </div>`;
       } else if (pairSrc) {
         mediaEl.innerHTML = `
-          <div class="grid grid-cols-1 bg-stone-900 sm:grid-cols-2">
+          <div class="grid w-full grid-cols-1 bg-canvas sm:grid-cols-2">
             <figure class="flex min-w-0 flex-col">
-              <img src="${esc(pairSrc)}" alt="Photo · ${safeTitle}" draggable="false" class="protect-media max-h-[50dvh] w-full object-contain sm:max-h-[65dvh]" />
-              <figcaption class="px-3 py-2 text-center text-xs uppercase tracking-wider text-white/70">Photo</figcaption>
+              <div class="flex h-[min(42dvh,22rem)] items-center justify-center sm:h-[min(52dvh,34rem)]">
+                <img src="${esc(pairSrc)}" alt="Photo · ${safeTitle}" draggable="false" class="protect-media max-h-full max-w-full object-contain" />
+              </div>
+              <figcaption class="border-t border-line bg-canvas-elevated px-3 py-2 text-center text-xs uppercase tracking-wider text-ink-muted">Photo</figcaption>
             </figure>
-            <figure class="flex min-w-0 flex-col">
-              <img src="${esc(src)}" alt="Cartoon · ${safeTitle}" draggable="false" class="protect-media max-h-[50dvh] w-full object-contain sm:max-h-[65dvh]" />
-              <figcaption class="px-3 py-2 text-center text-xs uppercase tracking-wider text-white/70">Cartoon</figcaption>
+            <figure class="flex min-w-0 flex-col sm:border-l sm:border-line">
+              <div class="flex h-[min(42dvh,22rem)] items-center justify-center sm:h-[min(52dvh,34rem)]">
+                <img src="${esc(src)}" alt="Cartoon · ${safeTitle}" draggable="false" class="protect-media max-h-full max-w-full object-contain" />
+              </div>
+              <figcaption class="border-t border-line bg-canvas-elevated px-3 py-2 text-center text-xs uppercase tracking-wider text-ink-muted">Cartoon</figcaption>
             </figure>
           </div>`;
       } else {
         mediaEl.innerHTML = `
-          <img src="${esc(src)}" alt="${safeTitle}" draggable="false" class="protect-media max-h-[65dvh] w-full object-contain bg-stone-900" />`;
+          <img src="${esc(src)}" alt="${safeTitle}" draggable="false" class="protect-media max-h-[65dvh] w-full object-contain" />`;
       }
 
       document.body.classList.add("lightbox-open");

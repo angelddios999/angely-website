@@ -92,7 +92,13 @@ const first = pages[0] ?? "";
     const next = root.querySelector<HTMLButtonElement>("#story-next");
     if (!img || !status || !prev || !next || pages.length === 0) return;
 
-    let index = 0;
+    function pageFromUrl(): number {
+      const raw = Number(new URLSearchParams(window.location.search).get("page") ?? "1");
+      if (!Number.isFinite(raw)) return 0;
+      return Math.min(pages.length - 1, Math.max(0, Math.round(raw) - 1));
+    }
+
+    let index = pageFromUrl();
 
     function preload(i: number) {
       const src = pages[i];
@@ -101,7 +107,7 @@ const first = pages[0] ?? "";
       pre.src = src;
     }
 
-    function show(i: number) {
+    function show(i: number, persist: boolean) {
       index = i;
       const src = pages[index];
       if (!src) return;
@@ -112,13 +118,19 @@ const first = pages[0] ?? "";
       next.disabled = index === pages.length - 1;
       preload(index + 1);
       preload(index - 1);
+      if (persist) {
+        const url = new URL(window.location.href);
+        if (index <= 0) url.searchParams.delete("page");
+        else url.searchParams.set("page", String(index + 1));
+        history.pushState({ page: index + 1 }, "", url);
+      }
     }
 
     prev.addEventListener("click", () => {
-      if (index > 0) show(index - 1);
+      if (index > 0) show(index - 1, true);
     });
     next.addEventListener("click", () => {
-      if (index < pages.length - 1) show(index + 1);
+      if (index < pages.length - 1) show(index + 1, true);
     });
 
     function onKey(e: KeyboardEvent) {
@@ -129,17 +141,18 @@ const first = pages[0] ?? "";
       }
       if (e.key === "ArrowLeft" && index > 0) {
         e.preventDefault();
-        show(index - 1);
+        show(index - 1, true);
       }
       if (e.key === "ArrowRight" && index < pages.length - 1) {
         e.preventDefault();
-        show(index + 1);
+        show(index + 1, true);
       }
     }
 
     document.addEventListener("keydown", onKey);
+    window.addEventListener("popstate", () => show(pageFromUrl(), false));
 
-    show(0);
+    show(index, false);
   }
 
   document.querySelectorAll<HTMLElement>("[data-story-reader]").forEach(initStoryReader);

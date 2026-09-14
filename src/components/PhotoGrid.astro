@@ -1,6 +1,6 @@
 ---
 import { isPair, type Artwork } from "../data/portfolio";
-import { mediaUrl } from "../lib/media";
+import { mediaThumbUrl, mediaUrl } from "../lib/media";
 import PlaceholderMedia from "./PlaceholderMedia.astro";
 
 interface Props {
@@ -21,16 +21,18 @@ const categories = [...new Set(items.map((i) => i.category))];
       <div class="mb-8 flex flex-wrap gap-2" role="group" aria-label="Filter by category">
         <button
           type="button"
-          class="filter-chip is-active rounded-full border border-ink bg-ink px-3.5 py-1.5 text-xs font-medium text-canvas-elevated transition"
+          class="filter-chip is-active inline-flex min-h-11 items-center rounded-full border border-ink bg-ink px-4 py-1.5 text-sm font-medium text-canvas-elevated transition"
           data-filter="all"
+          aria-pressed="true"
         >
           All
         </button>
         {categories.map((cat) => (
           <button
             type="button"
-            class="filter-chip rounded-full border border-line bg-canvas-elevated px-3.5 py-1.5 text-xs font-medium text-ink-muted transition hover:border-ink/25 hover:text-ink"
+            class="filter-chip inline-flex min-h-11 items-center rounded-full border border-line bg-canvas-elevated px-4 py-1.5 text-sm font-medium text-ink-muted transition hover:border-ink/25 hover:text-ink"
             data-filter={cat}
+            aria-pressed="false"
           >
             {cat}
           </button>
@@ -52,6 +54,7 @@ const categories = [...new Set(items.map((i) => i.category))];
         <li data-category={item.category} class="photo-item">
           <button
             type="button"
+            id={item.id}
             class="group card-media relative block w-full cursor-zoom-in text-left focus-visible:outline-offset-4"
             data-lightbox-open
             data-id={item.id}
@@ -75,8 +78,11 @@ const categories = [...new Set(items.map((i) => i.category))];
             ) : (
               <div class="protect-media relative aspect-square w-full overflow-hidden">
                 <img
-                  src={mediaUrl(item.key)}
-                  alt={item.title}
+                  src={mediaThumbUrl(item.key)}
+                  alt=""
+                  width={800}
+                  height={800}
+                  sizes={compact ? "(min-width: 768px) 30vw, 50vw" : "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"}
                   loading="lazy"
                   decoding="async"
                   draggable="false"
@@ -91,9 +97,9 @@ const categories = [...new Set(items.map((i) => i.category))];
                 </span>
               )
             }
-            <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent p-4 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
-              <p class="text-sm font-medium text-white">{item.title}</p>
-              <p class="text-xs text-white/80">
+            <div class="border-t border-line/80 bg-canvas-elevated px-3 py-3">
+              <p class="text-sm font-medium text-ink">{item.title}</p>
+              <p class="mt-0.5 text-xs text-ink-muted">
                 {isPair(item) ? "Photo + cartoon" : item.category}
                 {item.year ? ` · ${item.year}` : ""}
               </p>
@@ -104,17 +110,16 @@ const categories = [...new Set(items.map((i) => i.category))];
     }
   </ul>
 
-  <!-- Lightbox dialog -->
   <dialog
     id="lightbox"
     class="m-auto w-[min(100%,64rem)] max-h-[min(100%,90dvh)] overflow-auto rounded-2xl border-0 bg-canvas-elevated p-0 shadow-lift backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
-    aria-label="Expanded artwork view"
+    aria-labelledby="lightbox-title"
   >
     <div class="relative flex max-h-[90dvh] flex-col">
       <button
         type="button"
         id="lightbox-close"
-        class="absolute right-3 top-3 z-10 flex h-10 w-10 items-center justify-center rounded-full bg-ink/80 text-canvas-elevated transition hover:bg-ink"
+        class="absolute right-3 top-3 z-10 flex h-11 w-11 items-center justify-center rounded-full bg-ink/80 text-canvas-elevated transition hover:bg-ink"
         aria-label="Close"
       >
         <svg class="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.75" aria-hidden="true">
@@ -122,12 +127,15 @@ const categories = [...new Set(items.map((i) => i.category))];
         </svg>
       </button>
       <div id="lightbox-media" class="min-h-[12rem] bg-placeholder">
-        <!-- filled by script -->
       </div>
       <div class="border-t border-line px-5 py-4 sm:px-6">
         <p id="lightbox-meta" class="eyebrow"></p>
         <h2 id="lightbox-title" class="mt-1 font-display text-xl font-semibold text-ink sm:text-2xl"></h2>
         <p id="lightbox-desc" class="mt-2 text-sm leading-relaxed text-ink-muted"></p>
+        <div class="mt-4 flex gap-2">
+          <button type="button" id="lightbox-prev" class="btn-secondary px-4">Previous</button>
+          <button type="button" id="lightbox-next" class="btn-secondary px-4">Next</button>
+        </div>
       </div>
     </div>
   </dialog>
@@ -137,8 +145,16 @@ const categories = [...new Set(items.map((i) => i.category))];
   function initPhotoGrid(root: HTMLElement) {
     const chips = root.querySelectorAll<HTMLButtonElement>(".filter-chip");
     const items = root.querySelectorAll<HTMLElement>(".photo-item");
+    const buttons = [...root.querySelectorAll<HTMLElement>("[data-lightbox-open]")];
 
-    function applyFilter(filter: string) {
+    function visibleButtons(): HTMLElement[] {
+      return buttons.filter((btn) => {
+        const li = btn.closest(".photo-item");
+        return !li?.classList.contains("hidden");
+      });
+    }
+
+    function applyFilter(filter: string, persist: boolean) {
       chips.forEach((c) => {
         const active = (c.dataset.filter ?? "all") === filter;
         c.classList.toggle("is-active", active);
@@ -148,22 +164,29 @@ const categories = [...new Set(items.map((i) => i.category))];
         c.classList.toggle("bg-canvas-elevated", !active);
         c.classList.toggle("text-ink-muted", !active);
         c.classList.toggle("border-line", !active);
+        c.setAttribute("aria-pressed", String(active));
       });
       items.forEach((item) => {
         const show = filter === "all" || item.dataset.category === filter;
         item.classList.toggle("hidden", !show);
       });
+      if (persist) {
+        const url = new URL(window.location.href);
+        if (filter === "all") url.searchParams.delete("filter");
+        else url.searchParams.set("filter", filter);
+        history.pushState({ filter }, "", url);
+      }
     }
 
     chips.forEach((chip) => {
       chip.addEventListener("click", () => {
-        applyFilter(chip.dataset.filter ?? "all");
+        applyFilter(chip.dataset.filter ?? "all", true);
       });
     });
 
     const requested = new URLSearchParams(window.location.search).get("filter");
     if (requested && [...chips].some((c) => c.dataset.filter === requested)) {
-      applyFilter(requested);
+      applyFilter(requested, false);
     }
 
     const dialog = root.querySelector<HTMLDialogElement>("#lightbox");
@@ -172,11 +195,24 @@ const categories = [...new Set(items.map((i) => i.category))];
     const descEl = root.querySelector<HTMLElement>("#lightbox-desc");
     const metaEl = root.querySelector<HTMLElement>("#lightbox-meta");
     const closeBtn = root.querySelector<HTMLButtonElement>("#lightbox-close");
+    const prevBtn = root.querySelector<HTMLButtonElement>("#lightbox-prev");
+    const nextBtn = root.querySelector<HTMLButtonElement>("#lightbox-next");
+
+    let currentIndex = -1;
+    let hashLock = false;
+
+    function setHash(id: string | null) {
+      hashLock = true;
+      const url = new URL(window.location.href);
+      url.hash = id ? id : "";
+      history.pushState({ piece: id }, "", url);
+      queueMicrotask(() => {
+        hashLock = false;
+      });
+    }
 
     function close() {
       dialog?.close();
-      document.body.classList.remove("lightbox-open");
-      if (mediaEl) mediaEl.innerHTML = "";
     }
 
     function esc(value: string): string {
@@ -186,8 +222,10 @@ const categories = [...new Set(items.map((i) => i.category))];
         .replace(/</g, "&lt;");
     }
 
-    function openFrom(btn: HTMLElement) {
+    function openFrom(btn: HTMLElement, persistHash: boolean) {
       if (!dialog || !mediaEl || !titleEl || !descEl || !metaEl) return;
+      const vis = visibleButtons();
+      currentIndex = vis.indexOf(btn);
       const title = btn.dataset.title ?? "";
       const description = btn.dataset.description ?? "";
       const src = btn.dataset.src ?? "";
@@ -200,6 +238,9 @@ const categories = [...new Set(items.map((i) => i.category))];
       titleEl.textContent = title;
       descEl.textContent = description;
       metaEl.textContent = pairSrc ? `${meta}${meta ? " · " : ""}Photo + cartoon` : meta;
+
+      if (prevBtn) prevBtn.disabled = currentIndex <= 0;
+      if (nextBtn) nextBtn.disabled = currentIndex < 0 || currentIndex >= vis.length - 1;
 
       if (isPlaceholder || !src) {
         mediaEl.innerHTML = `
@@ -227,21 +268,71 @@ const categories = [...new Set(items.map((i) => i.category))];
       }
 
       document.body.classList.add("lightbox-open");
-      dialog.showModal();
+      if (!dialog.open) dialog.showModal();
+      if (persistHash && btn.dataset.id) setHash(btn.dataset.id);
     }
 
-    root.querySelectorAll<HTMLElement>("[data-lightbox-open]").forEach((btn) => {
-      btn.addEventListener("click", () => openFrom(btn));
+    function step(delta: number) {
+      const vis = visibleButtons();
+      const next = currentIndex + delta;
+      if (next < 0 || next >= vis.length) return;
+      const btn = vis[next];
+      if (btn) openFrom(btn, true);
+    }
+
+    function openFromHash() {
+      const id = window.location.hash.replace(/^#/, "");
+      if (!id) {
+        if (dialog?.open) close();
+        return;
+      }
+      const btn = buttons.find((b) => b.dataset.id === id);
+      if (btn) {
+        const li = btn.closest(".photo-item") as HTMLElement | null;
+        if (li?.classList.contains("hidden")) {
+          applyFilter("all", false);
+        }
+        openFrom(btn, false);
+      }
+    }
+
+    buttons.forEach((btn) => {
+      btn.addEventListener("click", () => openFrom(btn, true));
     });
 
     closeBtn?.addEventListener("click", close);
+    prevBtn?.addEventListener("click", () => step(-1));
+    nextBtn?.addEventListener("click", () => step(1));
     dialog?.addEventListener("click", (e) => {
       if (e.target === dialog) close();
     });
     dialog?.addEventListener("close", () => {
       document.body.classList.remove("lightbox-open");
       if (mediaEl) mediaEl.innerHTML = "";
+      currentIndex = -1;
+      if (window.location.hash) setHash(null);
     });
+
+    document.addEventListener("keydown", (e) => {
+      if (!dialog?.open) return;
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        step(-1);
+      }
+      if (e.key === "ArrowRight") {
+        e.preventDefault();
+        step(1);
+      }
+    });
+
+    window.addEventListener("popstate", () => {
+      if (hashLock) return;
+      const filter = new URLSearchParams(window.location.search).get("filter") ?? "all";
+      applyFilter(filter, false);
+      openFromHash();
+    });
+
+    openFromHash();
   }
 
   document.querySelectorAll<HTMLElement>("[data-photo-grid]").forEach(initPhotoGrid);

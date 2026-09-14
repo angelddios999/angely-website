@@ -484,6 +484,7 @@ export const animations: Animation[] = [
     id: "breakthrough-junior-challenge",
     title: "Breakthrough Junior Challenge",
     videoKey: "animation/2026-breakthrough-junior-challenge.mp4",
+    posterKey: "animation/2026-breakthrough-junior-challenge.png",
     year: 2026,
     placeholder: false,
   },
@@ -491,6 +492,7 @@ export const animations: Animation[] = [
     id: "information-literacy",
     title: "Information Literacy",
     videoKey: "animation/2026-information-literacy.mov",
+    posterKey: "animation/2026-information-literacy.png",
     year: 2026,
     placeholder: false,
   },
@@ -520,8 +522,15 @@ export function galleryHrefFor(item: Artwork): string {
   return "/physical";
 }
 
-export function storyHref(story: Story): string {
-  return `/stories/${story.id}`;
+/** Gallery URL that opens this piece in the lightbox. */
+export function pieceHref(item: Artwork): string {
+  return `${galleryHrefFor(item)}#${item.id}`;
+}
+
+export function storyHref(story: Story, page?: number): string {
+  const base = `/stories/${story.id}`;
+  if (page && page > 1) return `${base}?page=${page}`;
+  return base;
 }
 
 /** Featured pieces for the home page */

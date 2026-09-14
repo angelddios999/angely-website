@@ -12,7 +12,7 @@
   --color-canvas-elevated: #fffcf8;
   --color-ink: #1c1917;
   --color-ink-muted: #57534e;
-  --color-ink-subtle: #a8a29e;
+  --color-ink-subtle: #6f675e;
   --color-line: #e7e0d6;
   --color-accent: #b4533a;
   --color-accent-soft: #f3e0d8;
@@ -27,6 +27,7 @@
 @layer base {
   html {
     scroll-behavior: smooth;
+    scroll-padding-top: 5.5rem;
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
@@ -73,11 +74,11 @@
   }
 
   .btn-primary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas-elevated transition-all duration-200 hover:bg-accent;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-ink px-5 py-2.5 text-sm font-medium text-canvas-elevated transition-all duration-200 hover:bg-accent;
   }
 
   .btn-secondary {
-    @apply inline-flex items-center justify-center gap-2 rounded-full border border-line bg-canvas-elevated px-5 py-2.5 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/20 hover:bg-white;
+    @apply inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-line bg-canvas-elevated px-5 py-2.5 text-sm font-medium text-ink transition-all duration-200 hover:border-ink/20 hover:bg-white;
   }
 
   .card-media {
@@ -105,6 +106,20 @@
 /* Lightbox open state */
 body.lightbox-open {
   overflow: hidden;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .card-media,
+  .card-media:hover,
+  .protect-media img,
+  [data-hero-slot] {
+    transition: none !important;
+    transform: none !important;
+  }
 }
 
 /*

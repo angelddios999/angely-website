@@ -25,7 +25,17 @@ function guessContentType(key: string): string {
   return "application/octet-stream";
 }
 
-export const GET: APIRoute = async ({ params }) => {
+type ImagesBinding = {
+  input: (stream: ReadableStream) => {
+    transform: (opts: { width: number; fit?: string }) => {
+      output: (opts: { format: string }) => Promise<{
+        response: (init?: { headers?: Record<string, string> }) => Response;
+      }>;
+    };
+  };
+};
+
+export const GET: APIRoute = async ({ params, url }) => {
   const keyParam = params.key;
   if (!keyParam) {
     return new Response("Not found", { status: 404 });
@@ -55,18 +65,48 @@ export const GET: APIRoute = async ({ params }) => {
     });
   }
 
+  const filename = key.split("/").pop() || key;
+  const width = Number(url.searchParams.get("w") ?? "");
+  const images = (env as { IMAGES?: ImagesBinding }).IMAGES;
+  const type = object.httpMetadata?.contentType || guessContentType(key);
+  const isRaster =
+    type.startsWith("image/") && !type.includes("svg") && !type.includes("gif");
+
+  let served = object;
+
+  if (images && object.body && isRaster && width >= 32 && width <= 2000) {
+    try {
+      const transformed = await images
+        .input(object.body)
+        .transform({ width, fit: "scale-down" })
+        .output({ format: "image/webp" });
+      return transformed.response({
+        headers: {
+          "Cache-Control": CACHE_CONTROL,
+          "X-Content-Type-Options": "nosniff",
+          "Content-Disposition": `inline; filename="${filename.replace(/"/g, "")}"`,
+        },
+      });
+    } catch (err) {
+      console.error("Image transform failed; serving original", err);
+      const retry = await bucket.get(key);
+      if (!retry) {
+        return new Response("Not found", { status: 404 });
+      }
+      served = retry;
+    }
+  }
+
   const headers = new Headers();
-  object.writeHttpMetadata(headers);
-  headers.set("etag", object.httpEtag);
+  served.writeHttpMetadata(headers);
+  headers.set("etag", served.httpEtag);
   headers.set("Cache-Control", CACHE_CONTROL);
   headers.set("X-Content-Type-Options", "nosniff");
-  // Prefer inline display over forced download when the URL is opened directly.
-  const filename = key.split("/").pop() || key;
   headers.set("Content-Disposition", `inline; filename="${filename.replace(/"/g, "")}"`);
 
   if (!headers.has("Content-Type")) {
     headers.set("Content-Type", guessContentType(key));
   }
 
-  return new Response(object.body, { status: 200, headers });
+  return new Response(served.body, { status: 200, headers });
 };

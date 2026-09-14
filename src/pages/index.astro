@@ -7,7 +7,7 @@ import { site } from "../data/site";
 import { mediaUrl } from "../lib/media";
 import {
   getFeatured,
-  galleryHrefFor,
+  pieceHref,
   physicalArt,
   digitalArt,
   stories,
@@ -34,8 +34,8 @@ function toHeroCard(item: Artwork): HeroCard {
   return {
     id: item.id,
     title: item.title,
-    href: galleryHrefFor(item),
-    src: item.placeholder === true ? null : mediaUrl(item.key),
+    href: pieceHref(item),
+    src: item.placeholder === true ? null : mediaUrl(item.key, { w: 900 }),
     placeholder: item.placeholder === true,
     placeholderHue: item.placeholderHue ?? 30,
   };
@@ -78,12 +78,12 @@ const heroPoolJson = JSON.stringify(heroPool);
       </div>
 
       <!-- Featured preview cards — random subset, rotates every 5s -->
-      <div
+      <div>
+        <div
         class="grid grid-cols-2 gap-3 sm:gap-4"
         data-hero-rotator
         data-interval-ms="5000"
         data-pool={heroPoolJson}
-        aria-live="polite"
       >
         {
           heroInitial.map((item, i) => (
@@ -121,6 +121,15 @@ const heroPoolJson = JSON.stringify(heroPool);
             </a>
           ))
         }
+      </div>
+      <button
+        type="button"
+        class="link-underline mt-3 text-sm font-medium"
+        data-hero-pause
+        hidden
+      >
+        Pause slideshow
+      </button>
       </div>
     </div>
   </section>
@@ -252,12 +261,49 @@ const heroPoolJson = JSON.stringify(heroPool);
         timer = null;
       }
 
-      document.addEventListener("visibilitychange", () => {
-        if (document.visibilityState === "hidden") stop();
-        else start();
+      const pauseBtn = root.parentElement?.querySelector<HTMLButtonElement>("[data-hero-pause]");
+      const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+
+      function setPausedUi(paused: boolean) {
+        if (!pauseBtn) return;
+        pauseBtn.hidden = false;
+        pauseBtn.textContent = paused ? "Play slideshow" : "Pause slideshow";
+        pauseBtn.setAttribute("aria-pressed", String(paused));
+      }
+
+      pauseBtn?.addEventListener("click", () => {
+        if (timer) {
+          stop();
+          setPausedUi(true);
+        } else {
+          start();
+          setPausedUi(false);
+        }
       });
 
-      start();
+      root.addEventListener("pointerenter", stop);
+      root.addEventListener("pointerleave", () => {
+        if (pauseBtn?.getAttribute("aria-pressed") === "true") return;
+        start();
+      });
+      root.addEventListener("focusin", stop);
+      root.addEventListener("focusout", (e) => {
+        if (root.contains(e.relatedTarget as Node)) return;
+        if (pauseBtn?.getAttribute("aria-pressed") === "true") return;
+        start();
+      });
+
+      document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") stop();
+        else if (pauseBtn?.getAttribute("aria-pressed") !== "true") start();
+      });
+
+      if (!reduceMotion) {
+        setPausedUi(false);
+        start();
+      } else if (pauseBtn) {
+        pauseBtn.hidden = true;
+      }
     }
 
     document.querySelectorAll<HTMLElement>("[data-hero-rotator]").forEach(initHeroRotator);
@@ -281,22 +327,24 @@ const heroPoolJson = JSON.stringify(heroPool);
         </a>
       </div>
       <dl class="grid grid-cols-2 gap-4 sm:grid-cols-4 lg:grid-cols-1 lg:gap-6">
-        <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
-          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Physical</dt>
-          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{physicalArt.length}</dd>
-        </div>
-        <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
-          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Digital</dt>
-          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{digitalArt.length}</dd>
-        </div>
-        <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
-          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Stories</dt>
-          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{stories.length}</dd>
-        </div>
-        <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
-          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Animations</dt>
-          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{animations.length}</dd>
-        </div>
+        {
+          [
+            { href: "/physical", label: "Physical", count: physicalArt.length },
+            { href: "/digital", label: "Digital", count: digitalArt.length },
+            { href: "/stories", label: "Stories", count: stories.length },
+            { href: "/animations", label: "Animations", count: animations.length },
+          ].map((stat) => (
+            <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft transition hover:border-ink/20">
+              <dt class="text-xs uppercase tracking-wider text-ink-muted">{stat.label}</dt>
+              <dd class="mt-1 font-display text-3xl font-semibold text-ink">
+                <a href={stat.href} class="hover:text-accent">
+                  {stat.count}
+                  <span class="sr-only"> {stat.label.toLowerCase()} pieces</span>
+                </a>
+              </dd>
+            </div>
+          ))
+        }
       </dl>
     </div>
   </section>

@@ -19,7 +19,7 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
   novalidate
 >
   <div>
-    <label for="name" class="label-field">Name</label>
+    <label for="name" class="label-field">Name <span class="text-ink-muted">*</span></label>
     <input
       id="name"
       name="name"
@@ -29,11 +29,13 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
       maxlength="120"
       class="input-field"
       placeholder="Your name"
+      aria-describedby="name-error"
     />
+    <p id="name-error" class="mt-1 hidden text-sm text-red-800"></p>
   </div>
 
   <div>
-    <label for="email" class="label-field">Email</label>
+    <label for="email" class="label-field">Email <span class="text-ink-muted">*</span></label>
     <input
       id="email"
       name="email"
@@ -43,11 +45,13 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
       maxlength="200"
       class="input-field"
       placeholder="you@example.com"
+      aria-describedby="email-error"
     />
+    <p id="email-error" class="mt-1 hidden text-sm text-red-800"></p>
   </div>
 
   <div>
-    <label for="message" class="label-field">Message</label>
+    <label for="message" class="label-field">Message <span class="text-ink-muted">*</span></label>
     <textarea
       id="message"
       name="message"
@@ -56,7 +60,9 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
       maxlength="5000"
       class="input-field resize-y"
       placeholder="Say hello…"
+      aria-describedby="message-error"
     ></textarea>
+    <p id="message-error" class="mt-1 hidden text-sm text-red-800"></p>
   </div>
 
   <!-- Cloudflare Turnstile -->
@@ -81,7 +87,7 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
     id="form-status"
     class="hidden rounded-xl px-4 py-3 text-sm"
     role="status"
-    aria-live="polite"
+    tabindex="-1"
   >
   </div>
 
@@ -116,10 +122,31 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
     );
     if (kind === "ok") {
       status.classList.add("bg-emerald-50", "text-emerald-900");
+      status.setAttribute("role", "status");
     } else {
       status.classList.add("bg-red-50", "text-red-900");
+      status.setAttribute("role", "alert");
     }
     status.textContent = message;
+    status.focus();
+  }
+
+  function setFieldError(id: string, message: string) {
+    const field = document.getElementById(id);
+    const err = document.getElementById(`${id}-error`);
+    if (field) {
+      field.setAttribute("aria-invalid", message ? "true" : "false");
+    }
+    if (err) {
+      err.textContent = message;
+      err.classList.toggle("hidden", !message);
+    }
+  }
+
+  function clearFieldErrors() {
+    setFieldError("name", "");
+    setFieldError("email", "");
+    setFieldError("message", "");
   }
 
   form?.addEventListener("submit", async (e) => {
@@ -132,8 +159,27 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
     const message = String(data.get("message") ?? "").trim();
     const token = String(data.get("cf-turnstile-response") ?? "").trim();
 
-    if (!name || !email || !message) {
-      showStatus("err", "Please fill in your name, email, and message.");
+    clearFieldErrors();
+
+    let firstInvalid: string | null = null;
+    if (!name) {
+      setFieldError("name", "Enter your name.");
+      firstInvalid = "name";
+    }
+    if (!email) {
+      setFieldError("email", "Enter your email address.");
+      firstInvalid ??= "email";
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      setFieldError("email", "Enter a valid email address.");
+      firstInvalid ??= "email";
+    }
+    if (!message) {
+      setFieldError("message", "Enter a message.");
+      firstInvalid ??= "message";
+    }
+
+    if (firstInvalid) {
+      showStatus("err", "Please fix the highlighted fields and try again.");
       return;
     }
 
@@ -143,6 +189,7 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
     }
 
     submitBtn.disabled = true;
+    submitBtn.setAttribute("aria-busy", "true");
     submitBtn.textContent = "Sending…";
     status?.classList.add("hidden");
 
@@ -184,6 +231,7 @@ const hasSiteKey = Boolean(siteKey && !siteKey.includes("your-turnstile"));
       showStatus("err", "Network error — check your connection and try again.");
     } finally {
       submitBtn.disabled = false;
+      submitBtn.removeAttribute("aria-busy");
       submitBtn.textContent = "Send message";
     }
   });

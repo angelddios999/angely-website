@@ -1,10 +1,18 @@
 /**
  * Build a site-relative media URL from an R2 object key.
- * The Worker serves `/media/*` from the MEDIA_BUCKET binding.
+ * The Worker serves `/media/<key>`. Optional `w` requests a resized
+ * thumbnail when the Images binding is configured.
  */
-export function mediaUrl(key: string): string {
+export function mediaUrl(key: string, opts?: { w?: number }): string {
   const clean = key.replace(/^\/+/, "");
-  return `/media/${clean}`;
+  const base = `/media/${clean}`;
+  if (opts?.w && opts.w > 0) return `${base}?w=${Math.round(opts.w)}`;
+  return base;
+}
+
+/** Grid/card thumbnail — smaller than the lightbox original. */
+export function mediaThumbUrl(key: string): string {
+  return mediaUrl(key, { w: 800 });
 }
 
 export function isPlaceholder(item: { placeholder?: boolean }): boolean {

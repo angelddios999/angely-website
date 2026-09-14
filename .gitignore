@@ -31,3 +31,7 @@ pnpm-debug.log*
 
 # wrangler
 .wrangler/
+
+# python
+__pycache__/
+*.py[cod]

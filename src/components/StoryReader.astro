@@ -1,0 +1,146 @@
+---
+import type { Story } from "../data/portfolio";
+import { mediaUrl } from "../lib/media";
+
+interface Props {
+  story: Story;
+}
+
+const { story } = Astro.props;
+const pages = story.pageKeys.map((key) => mediaUrl(key));
+const total = pages.length;
+const first = pages[0] ?? "";
+---
+
+<section
+  class="story-reader"
+  data-story-reader
+  data-pages={JSON.stringify(pages)}
+  data-title={story.title}
+>
+  <div class="overflow-hidden rounded-2xl border border-line bg-canvas-elevated shadow-soft">
+    <div class="protect-media bg-canvas-elevated">
+      <img
+        id="story-page"
+        src={first}
+        alt={`${story.title}, page 1 of ${total}`}
+        class="protect-media mx-auto block h-auto w-auto max-h-[75dvh] max-w-full object-contain"
+        draggable="false"
+      />
+    </div>
+    <div class="flex flex-col gap-3 border-t border-line px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+      <p
+        id="story-status"
+        class="text-sm text-ink-muted"
+        aria-live="polite"
+        aria-atomic="true"
+      >
+        Page 1 of {total}
+      </p>
+      <div class="flex gap-2">
+        <button
+          type="button"
+          id="story-prev"
+          class="btn-secondary min-h-11 min-w-11 px-4 disabled:cursor-not-allowed disabled:opacity-40"
+          disabled
+        >
+          Previous
+        </button>
+        <button
+          type="button"
+          id="story-next"
+          class="btn-primary min-h-11 min-w-11 px-4 disabled:cursor-not-allowed disabled:opacity-40"
+          disabled={total < 2}
+        >
+          Next
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <noscript>
+    <ol class="mt-10 grid gap-6">
+      {
+        pages.map((src, i) => (
+          <li>
+            <img
+              src={src}
+              alt={`${story.title}, page ${i + 1} of ${total}`}
+              class="protect-media w-full rounded-2xl border border-line bg-canvas-elevated object-contain"
+              loading="lazy"
+              draggable="false"
+            />
+          </li>
+        ))
+      }
+    </ol>
+  </noscript>
+</section>
+
+<script>
+  function initStoryReader(root: HTMLElement) {
+    let pages: string[] = [];
+    try {
+      pages = JSON.parse(root.dataset.pages ?? "[]") as string[];
+    } catch {
+      return;
+    }
+    const title = root.dataset.title ?? "Story";
+    const img = root.querySelector<HTMLImageElement>("#story-page");
+    const status = root.querySelector<HTMLElement>("#story-status");
+    const prev = root.querySelector<HTMLButtonElement>("#story-prev");
+    const next = root.querySelector<HTMLButtonElement>("#story-next");
+    if (!img || !status || !prev || !next || pages.length === 0) return;
+
+    let index = 0;
+
+    function preload(i: number) {
+      const src = pages[i];
+      if (!src) return;
+      const pre = new Image();
+      pre.src = src;
+    }
+
+    function show(i: number) {
+      index = i;
+      const src = pages[index];
+      if (!src) return;
+      img.src = src;
+      img.alt = `${title}, page ${index + 1} of ${pages.length}`;
+      status.textContent = `Page ${index + 1} of ${pages.length}`;
+      prev.disabled = index === 0;
+      next.disabled = index === pages.length - 1;
+      preload(index + 1);
+      preload(index - 1);
+    }
+
+    prev.addEventListener("click", () => {
+      if (index > 0) show(index - 1);
+    });
+    next.addEventListener("click", () => {
+      if (index < pages.length - 1) show(index + 1);
+    });
+
+    function onKey(e: KeyboardEvent) {
+      const target = e.target;
+      if (target instanceof HTMLElement) {
+        const tag = target.tagName;
+        if (tag === "INPUT" || tag === "TEXTAREA" || target.isContentEditable) return;
+      }
+      if (e.key === "ArrowLeft" && index > 0) {
+        e.preventDefault();
+        show(index - 1);
+      }
+      if (e.key === "ArrowRight" && index < pages.length - 1) {
+        e.preventDefault();
+        show(index + 1);
+      }
+    }
+
+    document.addEventListener("keydown", onKey);
+
+    show(0);
+  }
+
+  document.querySelectorAll<HTMLElement>("[data-story-reader]").forEach(initStoryReader);
+</script>

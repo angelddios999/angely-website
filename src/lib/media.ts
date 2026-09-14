@@ -10,3 +10,10 @@ export function mediaUrl(key: string): string {
 export function isPlaceholder(item: { placeholder?: boolean }): boolean {
   return item.placeholder === true;
 }
+
+export function videoMime(key: string): string {
+  const lower = key.toLowerCase();
+  if (lower.endsWith(".webm")) return "video/webm";
+  if (lower.endsWith(".mov")) return "video/quicktime";
+  return "video/mp4";
+}

@@ -9,13 +9,13 @@ export const site = {
   fullName: "Angely De Dios",
   title: "Angely De Dios — Art & Animation Portfolio",
   description:
-    "A portfolio of physical drawings, digital art, cartoons, and short animations.",
+    "A portfolio of physical art, digital illustration, picture-stories, and short animations.",
   url: "https://angelydedios.com",
   nav: [
     { href: "/", label: "Home" },
     { href: "/physical", label: "Physical Art" },
     { href: "/digital", label: "Digital Art" },
-    { href: "/cartoons", label: "Cartoons" },
+    { href: "/stories", label: "Stories" },
     { href: "/animations", label: "Animations" },
     { href: "/about", label: "About" },
     { href: "/contact", label: "Contact" },
@@ -45,14 +45,23 @@ export const site = {
       "TODO: replace — another paragraph on process, school/work, or goals. Keep it warm and personal. Mention the cartoonish portraits of people and animals she loves to draw.",
     ],
     /**
-     * Artist portrait for the About page sidebar.
-     * Upload to R2 under `key`, then set `placeholder: false`.
+     * Artist portraits for the About page.
+     * Upload to R2 under each `key`, then set `placeholder: false`.
      */
-    portrait: {
-      key: "about/portrait-2026.png",
-      alt: "Portrait of Angely De Dios",
-      placeholder: false,
-    },
+    portraits: [
+      {
+        key: "about/portrait-2026.png",
+        alt: "Portrait of Angely De Dios, 2026",
+        year: 2026,
+        placeholder: false,
+      },
+      {
+        key: "about/portrait-2024.png",
+        alt: "Portrait of Angely De Dios, 2024",
+        year: 2024,
+        placeholder: false,
+      },
+    ],
     highlights: [
       { label: "Focus", value: "Drawing · Digital Art · Cartoons · Animation" },
       { label: "Based in", value: "Seattle WA" },

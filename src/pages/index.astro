@@ -10,7 +10,7 @@ import {
   galleryHrefFor,
   physicalArt,
   digitalArt,
-  cartoons,
+  stories,
   animations,
   type Artwork,
 } from "../data/portfolio";
@@ -57,33 +57,23 @@ const heroPoolJson = JSON.stringify(heroPool);
 
 <BaseLayout title={site.title}>
   <!-- Hero -->
-  <section class="relative overflow-hidden border-b border-line">
-    <div
-      class="pointer-events-none absolute -right-24 -top-24 h-80 w-80 rounded-full bg-accent-soft/80 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-    <div
-      class="pointer-events-none absolute -bottom-32 -left-16 h-72 w-72 rounded-full bg-sky-100/70 blur-3xl"
-      aria-hidden="true"
-    >
-    </div>
-    <div class="container-page relative grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:py-28">
+  <section class="border-b border-line/80 bg-gradient-to-b from-accent-soft/40 to-transparent">
+    <div class="container-page grid gap-12 py-16 sm:py-20 lg:grid-cols-[1.15fr_0.85fr] lg:items-start lg:py-28">
       <div>
-        <p class="eyebrow">Art · Illustration · Cartoons · Animation</p>
+        <p class="eyebrow">Art · Illustration · Stories · Animation</p>
         <h1 class="mt-4 font-display text-4xl font-semibold tracking-tight text-ink sm:text-5xl lg:text-6xl lg:leading-[1.08]">
           Pictures that hold still — and ones that move.
         </h1>
         <p class="mt-6 max-w-xl text-base leading-relaxed text-ink-muted sm:text-lg">
           <!-- TODO: replace intro copy -->
-          Welcome to {site.shortName}'s portfolio — a growing collection of physical drawings,
-          digital art, cartoons of people and animals, and short animations. Explore the work,
-          then get in touch.
+          Welcome to {site.shortName}'s portfolio — physical drawings and paintings,
+          digital cartoons (some drawn from real photos), picture-stories, and short
+          animations. Explore the work, then get in touch.
         </p>
         <div class="mt-8 flex flex-wrap gap-3">
           <a href="/physical" class="btn-primary">Browse physical art</a>
-          <a href="/cartoons" class="btn-secondary">See cartoons</a>
-          <a href="/animations" class="btn-secondary">Watch animations</a>
+          <a href="/digital" class="btn-secondary">See digital art</a>
+          <a href="/stories" class="btn-secondary">Read stories</a>
         </div>
       </div>
 
@@ -283,10 +273,8 @@ const heroPoolJson = JSON.stringify(heroPool);
         </h2>
         <p class="mt-4 max-w-2xl text-base leading-relaxed text-ink-muted sm:text-lg">
           <!-- TODO: replace short intro -->
-          This site collects sketchbook pages, finished pieces, digital illustrations,
-          cartoonish drawings of people and animals, and animation studies. Everything is
-          organized so new work can drop in easily — upload media to R2, add one line to the
-          content file, and it shows up here.
+          Sketchbook pages, paintings, digital cartoons, illustrated stories, and
+          animation studies — organized so new work can drop in easily.
         </p>
         <a href="/about" class="link-underline mt-5 inline-block text-sm font-medium">
           More about {site.shortName} →
@@ -302,8 +290,8 @@ const heroPoolJson = JSON.stringify(heroPool);
           <dd class="mt-1 font-display text-3xl font-semibold text-ink">{digitalArt.length}</dd>
         </div>
         <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
-          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Cartoons</dt>
-          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{cartoons.length}</dd>
+          <dt class="text-xs uppercase tracking-wider text-ink-subtle">Stories</dt>
+          <dd class="mt-1 font-display text-3xl font-semibold text-ink">{stories.length}</dd>
         </div>
         <div class="rounded-2xl border border-line bg-canvas-elevated p-4 shadow-soft">
           <dt class="text-xs uppercase tracking-wider text-ink-subtle">Animations</dt>
@@ -324,7 +312,7 @@ const heroPoolJson = JSON.stringify(heroPool);
         <div class="flex flex-wrap gap-4 text-sm">
           <a href="/physical" class="link-underline">Physical</a>
           <a href="/digital" class="link-underline">Digital</a>
-          <a href="/cartoons" class="link-underline">Cartoons</a>
+          <a href="/stories" class="link-underline">Stories</a>
           <a href="/animations" class="link-underline">Animations</a>
         </div>
       </div>

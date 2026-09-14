@@ -8,57 +8,110 @@ import { site } from "../data/site";
 import { mediaUrl } from "../lib/media";
 
 const { about } = site;
-const { portrait } = about;
+const { portraits } = about;
+const [portraitA, portraitB] = portraits;
+const [paraA, ...paraB] = about.body;
 ---
 
 <BaseLayout title="About" description={`About ${site.shortName} — artist and animator.`}>
   <PageHeader eyebrow="About" title={about.headline} description={about.lead} />
 
   <section class="section-y">
-    <div class="container-page grid gap-12 lg:grid-cols-[1.4fr_0.8fr]">
-      <div class="space-y-5 text-base leading-relaxed text-ink-muted sm:text-lg">
+    <div class="container-page space-y-12 lg:space-y-16">
+      <div class="grid items-center gap-8 lg:grid-cols-2 lg:gap-x-12 lg:gap-y-20">
         {
-          about.body.map((para) => (
-            <p class="rounded-xl border border-dashed border-amber-200/80 bg-amber-50/40 px-4 py-3 text-ink-muted">
-              {para}
-            </p>
-          ))
+          portraitA && (
+            <figure class="min-w-0 lg:col-start-1 lg:row-start-1">
+              <div class="card-media">
+                {portraitA.placeholder ? (
+                  <PlaceholderMedia
+                    title={site.shortName}
+                    hue={portraitA.placeholderHue}
+                    aspect="portrait"
+                    label="Portrait"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl(portraitA.key)}
+                    alt={portraitA.alt}
+                    class="protect-media aspect-[3/4] block w-full object-cover"
+                    width={640}
+                    height={853}
+                    sizes="(min-width: 1024px) 28rem, 90vw"
+                    loading="eager"
+                    fetchpriority="high"
+                    decoding="async"
+                    draggable="false"
+                  />
+                )}
+              </div>
+              <figcaption class="mt-2 text-xs text-ink-subtle sm:text-sm">
+                {portraitA.year ?? portraitA.alt}
+              </figcaption>
+            </figure>
+          )
         }
-        <p class="text-sm text-amber-800">
-          <!-- TODO: replace bio paragraphs in src/data/site.ts → site.about -->
-          Placeholder bio blocks are highlighted so they're easy to find.
-        </p>
+
+        <div class="space-y-4 text-base leading-relaxed text-ink-muted sm:text-lg lg:col-start-2 lg:row-start-1">
+          <p class="rounded-xl border border-dashed border-amber-200/80 bg-amber-50/40 px-4 py-3 text-ink-muted">
+            {paraA}
+          </p>
+        </div>
+
+        <div class="space-y-4 text-base leading-relaxed text-ink-muted sm:text-lg lg:col-start-1 lg:row-start-2">
+          {
+            paraB.map((para) => (
+              <p class="rounded-xl border border-dashed border-amber-200/80 bg-amber-50/40 px-4 py-3 text-ink-muted">
+                {para}
+              </p>
+            ))
+          }
+          <p class="text-sm text-amber-800">
+            <!-- TODO: replace bio paragraphs in src/data/site.ts → site.about -->
+            Placeholder bio blocks are highlighted so they're easy to find.
+          </p>
+        </div>
+
+        {
+          portraitB && (
+            <figure class="min-w-0 lg:col-start-2 lg:row-start-2">
+              <div class="card-media">
+                {portraitB.placeholder ? (
+                  <PlaceholderMedia
+                    title={site.shortName}
+                    hue={portraitB.placeholderHue}
+                    aspect="portrait"
+                    label="Portrait"
+                  />
+                ) : (
+                  <img
+                    src={mediaUrl(portraitB.key)}
+                    alt={portraitB.alt}
+                    class="protect-media aspect-[3/4] block w-full object-cover"
+                    width={640}
+                    height={853}
+                    sizes="(min-width: 1024px) 28rem, 90vw"
+                    loading="lazy"
+                    decoding="async"
+                    draggable="false"
+                  />
+                )}
+              </div>
+              <figcaption class="mt-2 text-xs text-ink-subtle sm:text-sm">
+                {portraitB.year ?? portraitB.alt}
+              </figcaption>
+            </figure>
+          )
+        }
       </div>
 
-      <aside class="space-y-4">
-        <figure class="card-media overflow-hidden">
-          {
-            portrait.placeholder ? (
-              <PlaceholderMedia
-                title={site.shortName}
-                hue={portrait.placeholderHue}
-                aspect="portrait"
-                label="Portrait"
-              />
-            ) : (
-              <img
-                src={mediaUrl(portrait.key)}
-                alt={portrait.alt}
-                class="protect-media aspect-[3/4] w-full object-cover"
-                width={640}
-                height={853}
-                loading="eager"
-                decoding="async"
-                draggable="false"
-              />
-            )
-          }
-          <figcaption class="sr-only">{portrait.alt}</figcaption>
-        </figure>
-
-        <div class="rounded-2xl border border-line bg-canvas-elevated p-6 shadow-soft">
-          <p class="eyebrow">At a glance</p>
-          <dl class="mt-4 space-y-4">
+      <aside
+        class="rounded-2xl border border-line bg-canvas-elevated p-6 shadow-soft sm:p-8"
+        aria-labelledby="glance-heading"
+      >
+        <h2 id="glance-heading" class="eyebrow">At a glance</h2>
+        <div class="mt-5 flex flex-col gap-6 lg:flex-row lg:gap-8">
+          <dl class="grid min-w-0 flex-1 gap-5 sm:grid-cols-3 sm:gap-6">
             {
               about.highlights.map((h) => (
                 <div>
@@ -68,8 +121,10 @@ const { portrait } = about;
               ))
             }
           </dl>
+          <div class="shrink-0 border-t border-line pt-6 lg:flex lg:items-center lg:border-l lg:border-t-0 lg:pt-0 lg:ps-8">
+            <a href="/contact" class="btn-primary w-full min-h-11 lg:w-auto">Get in touch</a>
+          </div>
         </div>
-        <a href="/contact" class="btn-primary w-full">Get in touch</a>
       </aside>
     </div>
   </section>

@@ -5,7 +5,8 @@ const pathname = Astro.url.pathname.replace(/\/$/, "") || "/";
 
 function isActive(href: string) {
   const clean = href.replace(/\/$/, "") || "/";
-  return pathname === clean;
+  if (clean === "/") return pathname === "/";
+  return pathname === clean || pathname.startsWith(`${clean}/`);
 }
 ---
 

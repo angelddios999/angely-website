@@ -1,0 +1,60 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import { stories, storyHref } from "../../data/portfolio";
+import { mediaUrl } from "../../lib/media";
+---
+
+<BaseLayout
+  title="Stories"
+  description="Illustrated picture-stories, meant to be read in order."
+>
+  <PageHeader
+    eyebrow="Stories"
+    title="Illustrated stories"
+    description="Picture-stories to read page by page. Open a cover to start."
+  />
+  <section class="section-y">
+    <div class="container-page">
+      {
+        stories.length === 0 ? (
+          <p class="text-ink-muted">No stories yet.</p>
+        ) : (
+          <ul class="grid gap-6 sm:grid-cols-2">
+            {stories.map((story) => (
+              <li>
+                <a
+                  href={storyHref(story)}
+                  class="group card-media relative block overflow-hidden focus-visible:outline-offset-4"
+                >
+                  <div class="protect-media relative aspect-[4/3] overflow-hidden">
+                    <img
+                      src={mediaUrl(story.coverKey)}
+                      alt=""
+                      class="protect-media h-full w-full object-cover transition duration-500 group-hover:scale-[1.03]"
+                      loading="lazy"
+                      decoding="async"
+                      draggable="false"
+                    />
+                  </div>
+                  <div class="border-t border-line/80 bg-canvas-elevated p-4">
+                    <h2 class="font-display text-xl font-semibold text-ink">{story.title}</h2>
+                    <p class="mt-1 text-sm text-ink-muted">
+                      {story.pageKeys.length} pictures
+                      {story.year ? ` · ${story.year}` : ""}
+                    </p>
+                    {story.description && (
+                      <p class="mt-2 text-sm leading-relaxed text-ink-muted">{story.description}</p>
+                    )}
+                  </div>
+                </a>
+              </li>
+            ))}
+          </ul>
+        )
+      }
+    </div>
+  </section>
+</BaseLayout>

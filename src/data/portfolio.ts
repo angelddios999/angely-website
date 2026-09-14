@@ -17,7 +17,10 @@ export type Artwork = {
   id: string;
   title: string;
   description?: string;
+  /** Primary image — thumbnail, lightbox, and the cartoon side of a pair. */
   key: string;
+  /** Source photo when this piece is a photo + cartoon pair. */
+  pairKey?: string;
   category: string;
   year?: number;
   featured?: boolean;
@@ -26,12 +29,23 @@ export type Artwork = {
   placeholderHue?: number;
 };
 
+export type Story = {
+  id: string;
+  title: string;
+  description?: string;
+  coverKey: string;
+  /** Page image keys in reading order (1…n). */
+  pageKeys: string[];
+  year?: number;
+  featured?: boolean;
+};
+
 export type Animation = {
   id: string;
   title: string;
   description?: string;
   videoKey: string;
-  posterKey: string;
+  posterKey?: string;
   year?: number;
   featured?: boolean;
   placeholder?: boolean;
@@ -100,6 +114,22 @@ export const physicalArt: Artwork[] = [
     placeholder: false,
   },
   {
+    id: "cats-1",
+    title: "Cats 1",
+    key: "physical/2026-cats-1.jpg",
+    category: "Sculpture",
+    year: 2026,
+    placeholder: false,
+  },
+  {
+    id: "chikawa-1",
+    title: "Chiikawa 1",
+    key: "physical/2026-chikawa-1.jpg",
+    category: "Sculpture",
+    year: 2026,
+    placeholder: false,
+  },
+  {
     id: "oreo",
     title: "Oreo",
     description: "Drawing of my cat Oreo in pencil style.",
@@ -117,6 +147,30 @@ export const physicalArt: Artwork[] = [
     category: "Painting",
     year: 2025,
     featured: false,
+    placeholder: false,
+  },
+  {
+    id: "ranma-1",
+    title: "Ranma 1",
+    key: "physical/2025-ranma-1.jpg",
+    category: "Sculpture",
+    year: 2025,
+    placeholder: false,
+  },
+  {
+    id: "ranma-2",
+    title: "Ranma 2",
+    key: "physical/2025-ranma-2.jpg",
+    category: "Sculpture",
+    year: 2025,
+    placeholder: false,
+  },
+  {
+    id: "ranma-3",
+    title: "Ranma 3",
+    key: "physical/2025-ranma-3.jpg",
+    category: "Sculpture",
+    year: 2025,
     placeholder: false,
   },
   {
@@ -180,6 +234,62 @@ export const physicalArt: Artwork[] = [
     placeholder: false,
   },
   {
+    id: "baby-bills-1",
+    title: "Baby Bills 1",
+    key: "physical/2024-baby-bills-1.jpg",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
+    id: "baby-bills-2",
+    title: "Baby Bills 2",
+    key: "physical/2024-baby-bills-2.jpg",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
+    id: "hada-pencil",
+    title: "Hada Pencil",
+    key: "physical/2024-hada-pencil.png",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
+    id: "murder-drones-1",
+    title: "Murder Drones 1",
+    key: "physical/2024-murder-drones-1.jpg",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
+    id: "murder-drones-2",
+    title: "Murder Drones 2",
+    key: "physical/2024-murder-drones-2.jpg",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
+    id: "murder-drones-3",
+    title: "Murder Drones 3",
+    key: "physical/2024-murder-drones-3.jpg",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
+    id: "tcoal-1",
+    title: "TCOAL 1",
+    key: "physical/2024-tcoal-1.jpg",
+    category: "Sculpture",
+    year: 2024,
+    placeholder: false,
+  },
+  {
     id: "still-art",
     title: "Still Art",
     description: "Canvas painting of still art in watercolor style.",
@@ -221,141 +331,142 @@ export const physicalArt: Artwork[] = [
   },
 ];
 
+function cartoonPair(opts: {
+  id: string;
+  title: string;
+  slug: string;
+  year: number;
+  featured?: boolean;
+}): Artwork {
+  return {
+    id: opts.id,
+    title: opts.title,
+    key: `digital/cartoons/${opts.slug}/cartoon.png`,
+    pairKey: `digital/cartoons/${opts.slug}/photo.png`,
+    category: "Cartoons",
+    year: opts.year,
+    featured: opts.featured,
+    placeholder: false,
+  };
+}
+
+function cartoonStill(opts: {
+  id: string;
+  title: string;
+  file: string;
+  year: number;
+  featured?: boolean;
+}): Artwork {
+  return {
+    id: opts.id,
+    title: opts.title,
+    key: `digital/cartoons/${opts.file}`,
+    category: "Cartoons",
+    year: opts.year,
+    featured: opts.featured,
+    placeholder: false,
+  };
+}
+
 export const digitalArt: Artwork[] = [
-  {
-    id: "dig-1",
-    title: "Character Concept — Mira",
-    description: "TODO: replace — character design exploration.",
-    key: "digital/character-mira.jpg",
-    category: "Character Design",
+  cartoonStill({
+    id: "hades-stretching",
+    title: "Hades Stretching",
+    file: "2026-hades-stretching.png",
+    year: 2026,
+    featured: true,
+  }),
+  cartoonStill({
+    id: "hades-sniffing",
+    title: "Hades Sniffing",
+    file: "2026-hades-sniffing.png",
+    year: 2026,
+  }),
+  cartoonStill({
+    id: "hades-fat",
+    title: "Hades Fat",
+    file: "2026-hades-fat.png",
+    year: 2026,
+  }),
+  cartoonStill({
+    id: "hades-chud",
+    title: "Hades Chud",
+    file: "2026-hades-chud.png",
+    year: 2026,
+  }),
+  cartoonStill({
+    id: "hada-worm",
+    title: "Hada Worm",
+    file: "2026-hada-worm.png",
+    year: 2026,
+  }),
+  cartoonStill({
+    id: "hada-sneezing",
+    title: "Hada Sneezing",
+    file: "2026-hada-sneezing.png",
+    year: 2026,
+    featured: true,
+  }),
+  cartoonStill({
+    id: "hada-chud",
+    title: "Hada Chud",
+    file: "2026-hada-chud.png",
+    year: 2026,
+  }),
+  cartoonStill({
+    id: "oreo-in-awe",
+    title: "Oreo in Awe",
+    file: "2025-oreo-in-awe.png",
     year: 2025,
-    featured: false,
-    placeholder: true,
-  },
-  {
-    id: "dig-2",
-    title: "Environment Sketch — Harbor",
-    description: "TODO: replace — painted digital environment.",
-    key: "digital/env-harbor.jpg",
-    category: "Environment",
+    featured: true,
+  }),
+  cartoonStill({
+    id: "hades-silly",
+    title: "Silly Hades",
+    file: "2025-hades-silly.png",
     year: 2025,
-    featured: false,
-    placeholder: true,
-  },
-  {
-    id: "dig-3",
-    title: "Illustration — Quiet Morning",
-    description: "TODO: replace — storybook-style digital illustration.",
-    key: "digital/quiet-morning.jpg",
-    category: "Illustration",
+  }),
+  cartoonStill({
+    id: "hada-opossum",
+    title: "Hada Opossum",
+    file: "2025-hada-opossum.png",
+    year: 2025,
+  }),
+  cartoonPair({
+    id: "oreo-portrait",
+    title: "Oreo",
+    slug: "2024-oreo",
     year: 2024,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 35,
-  },
-  {
-    id: "dig-4",
-    title: "UI Mood Board Frames",
-    description: "TODO: replace — color and composition studies.",
-    key: "digital/ui-mood.jpg",
-    category: "Concept",
-    year: 2025,
-    placeholder: true,
-    placeholderHue: 250,
-  },
-  {
-    id: "dig-5",
-    title: "Creature Sheet",
-    description: "TODO: replace — creature design turnarounds.",
-    key: "digital/creature-sheet.jpg",
-    category: "Character Design",
+    featured: true,
+  }),
+  cartoonPair({
+    id: "hades-portrait",
+    title: "Hades",
+    slug: "2024-hades",
     year: 2024,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 160,
-  },
-  {
-    id: "dig-6",
-    title: "Poster Experiment",
-    description: "TODO: replace — typography and composition play.",
-    key: "digital/poster-experiment.jpg",
-    category: "Illustration",
-    year: 2025,
-    placeholder: true,
-    placeholderHue: 350,
-  },
+  }),
+  cartoonPair({
+    id: "hades-hada-fight",
+    title: "Hades & Hada Fight",
+    slug: "2024-hades-hada-fight",
+    year: 2024,
+    featured: true,
+  }),
+  cartoonPair({
+    id: "cats-portrait",
+    title: "Cats",
+    slug: "2024-cats",
+    year: 2024,
+  }),
 ];
 
-/**
- * Cartoonish digital drawings of people and animals Angely loves to draw.
- * Upload to R2 under keys like cartoons/friend-portrait.jpg.
- */
-export const cartoons: Artwork[] = [
+export const stories: Story[] = [
   {
-    id: "cart-1",
-    title: "Best Friend Portrait",
-    description: "TODO: replace — cartoonish digital portrait of a person Angely loves to draw.",
-    key: "cartoons/best-friend-portrait.jpg",
-    category: "People",
-    year: 2025,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 340,
-  },
-  {
-    id: "cart-2",
-    title: "Neighborhood Cat",
-    description: "TODO: replace — playful cartoon of a beloved animal.",
-    key: "cartoons/neighborhood-cat.jpg",
-    category: "Animals",
-    year: 2025,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 30,
-  },
-  {
-    id: "cart-3",
-    title: "Sibling Sketch",
-    description: "TODO: replace — stylized digital cartoon of family.",
-    key: "cartoons/sibling-sketch.jpg",
-    category: "People",
-    year: 2024,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 200,
-  },
-  {
-    id: "cart-4",
-    title: "Pup Portrait",
-    description: "TODO: replace — cartoon dog with big personality.",
-    key: "cartoons/pup-portrait.jpg",
-    category: "Animals",
-    year: 2025,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 45,
-  },
-  {
-    id: "cart-5",
-    title: "Classroom Crew",
-    description: "TODO: replace — group cartoon of friends or classmates.",
-    key: "cartoons/classroom-crew.jpg",
-    category: "People",
-    year: 2024,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 280,
-  },
-  {
-    id: "cart-6",
-    title: "Backyard Bird",
-    description: "TODO: replace — cute cartoon bird study.",
-    key: "cartoons/backyard-bird.jpg",
-    category: "Animals",
-    year: 2025,
-    featured: false,
-    placeholder: true,
-    placeholderHue: 160,
+    id: "manipulation",
+    title: "Manipulation",
+    coverKey: "stories/manipulation/cover.png",
+    pageKeys: Array.from({ length: 13 }, (_, i) => `stories/manipulation/${i + 1}.png`),
+    featured: true,
   },
 ];
 
@@ -367,9 +478,21 @@ export const animations: Animation[] = [
     videoKey: "animation/2026-finding-sun.mp4",
     posterKey: "animation/2026-finding-sun.png",
     year: 2026,
-    featured: false,
     placeholder: false,
-    placeholderHue: 265,
+  },
+  {
+    id: "breakthrough-junior-challenge",
+    title: "Breakthrough Junior Challenge",
+    videoKey: "animation/2026-breakthrough-junior-challenge.mp4",
+    year: 2026,
+    placeholder: false,
+  },
+  {
+    id: "information-literacy",
+    title: "Information Literacy",
+    videoKey: "animation/2026-information-literacy.mov",
+    year: 2026,
+    placeholder: false,
   },
   {
     id: "lift-off",
@@ -378,9 +501,7 @@ export const animations: Animation[] = [
     videoKey: "animation/2025-lift-off.mp4",
     posterKey: "animation/2025-lift-off.png",
     year: 2025,
-    featured: false,
     placeholder: false,
-    placeholderHue: 200,
   },
   {
     id: "orbit",
@@ -389,26 +510,32 @@ export const animations: Animation[] = [
     videoKey: "animation/2024-orbit.mp4",
     posterKey: "animation/2024-orbit.png",
     year: 2024,
-    featured: false,
     placeholder: false,
-    placeholderHue: 15,
   },
 ];
 
 /** Gallery path for an artwork based on its R2 key prefix */
 export function galleryHrefFor(item: Artwork): string {
   if (item.key.startsWith("digital/")) return "/digital";
-  if (item.key.startsWith("cartoons/")) return "/cartoons";
   return "/physical";
+}
+
+export function storyHref(story: Story): string {
+  return `/stories/${story.id}`;
 }
 
 /** Featured pieces for the home page */
 export function getFeatured() {
-  const art = [...physicalArt, ...digitalArt, ...cartoons].filter((a) => a.featured);
+  const art = [...physicalArt, ...digitalArt].filter((a) => a.featured);
   const anim = animations.filter((a) => a.featured);
-  return { art, anim };
+  const story = stories.filter((s) => s.featured);
+  return { art, anim, story };
 }
 
 export function categoriesOf(items: Artwork[]): string[] {
   return [...new Set(items.map((i) => i.category))];
+}
+
+export function isPair(item: Artwork): boolean {
+  return Boolean(item.pairKey);
 }

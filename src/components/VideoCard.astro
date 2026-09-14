@@ -1,6 +1,6 @@
 ---
 import type { Animation } from "../data/portfolio";
-import { mediaUrl } from "../lib/media";
+import { mediaUrl, videoMime } from "../lib/media";
 import PlaceholderMedia from "./PlaceholderMedia.astro";
 
 interface Props {
@@ -29,10 +29,10 @@ const { item } = Astro.props;
           disableRemotePlayback
           playsinline
           preload="none"
-          poster={mediaUrl(item.posterKey)}
+          poster={item.posterKey ? mediaUrl(item.posterKey) : undefined}
           data-src={mediaUrl(item.videoKey)}
         >
-          <source data-src={mediaUrl(item.videoKey)} type="video/mp4" />
+          <source data-src={mediaUrl(item.videoKey)} type={videoMime(item.videoKey)} />
           Your browser does not support the video tag.
         </video>
       </div>

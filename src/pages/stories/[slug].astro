@@ -1,0 +1,40 @@
+---
+export const prerender = true;
+
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import PageHeader from "../../components/PageHeader.astro";
+import StoryReader from "../../components/StoryReader.astro";
+import { stories } from "../../data/portfolio";
+import type { Story } from "../../data/portfolio";
+
+export function getStaticPaths() {
+  return stories.map((story) => ({
+    params: { slug: story.id },
+    props: { story },
+  }));
+}
+
+interface Props {
+  story: Story;
+}
+
+const { story } = Astro.props;
+---
+
+<BaseLayout
+  title={story.title}
+  description={story.description ?? `An illustrated story in ${story.pageKeys.length} pictures.`}
+>
+  <PageHeader eyebrow="Story" title={story.title} description={story.description}>
+    <p class="mt-4">
+      <a href="/stories" class="link-underline text-sm font-medium">All stories</a>
+    </p>
+  </PageHeader>
+  <section class="section-y">
+    <div class="container-page">
+      <div class="mx-auto max-w-4xl">
+        <StoryReader story={story} />
+      </div>
+    </div>
+  </section>
+</BaseLayout>

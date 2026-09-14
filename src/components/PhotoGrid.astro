@@ -1,5 +1,5 @@
 ---
-import type { Artwork } from "../data/portfolio";
+import { isPair, type Artwork } from "../data/portfolio";
 import { mediaUrl } from "../lib/media";
 import PlaceholderMedia from "./PlaceholderMedia.astro";
 
@@ -58,10 +58,13 @@ const categories = [...new Set(items.map((i) => i.category))];
             data-title={item.title}
             data-description={item.description ?? ""}
             data-src={item.placeholder ? "" : mediaUrl(item.key)}
+            data-pair-src={!item.placeholder && item.pairKey ? mediaUrl(item.pairKey) : ""}
             data-placeholder={item.placeholder ? "true" : "false"}
             data-hue={item.placeholderHue ?? 30}
             data-meta={[item.category, item.year].filter(Boolean).join(" · ")}
-            aria-label={`View ${item.title}`}
+            aria-label={
+              isPair(item) ? `View ${item.title}, photo and cartoon` : `View ${item.title}`
+            }
           >
             {item.placeholder ? (
               <PlaceholderMedia
@@ -81,10 +84,17 @@ const categories = [...new Set(items.map((i) => i.category))];
                 />
               </div>
             )}
+            {
+              isPair(item) && (
+                <span class="pointer-events-none absolute left-3 top-3 z-10 rounded-full bg-ink/80 px-2.5 py-1 text-[10px] font-medium uppercase tracking-wider text-canvas-elevated">
+                  Photo + cartoon
+                </span>
+              )
+            }
             <div class="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/55 via-black/15 to-transparent p-4 pt-12 opacity-0 transition group-hover:opacity-100 group-focus-visible:opacity-100">
               <p class="text-sm font-medium text-white">{item.title}</p>
               <p class="text-xs text-white/80">
-                {item.category}
+                {isPair(item) ? "Photo + cartoon" : item.category}
                 {item.year ? ` · ${item.year}` : ""}
               </p>
             </div>
@@ -97,7 +107,7 @@ const categories = [...new Set(items.map((i) => i.category))];
   <!-- Lightbox dialog -->
   <dialog
     id="lightbox"
-    class="m-auto w-[min(100%,52rem)] max-h-[min(100%,90dvh)] overflow-hidden rounded-2xl border-0 bg-canvas-elevated p-0 shadow-lift backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
+    class="m-auto w-[min(100%,64rem)] max-h-[min(100%,90dvh)] overflow-auto rounded-2xl border-0 bg-canvas-elevated p-0 shadow-lift backdrop:bg-ink/70 backdrop:backdrop-blur-sm"
     aria-label="Expanded artwork view"
   >
     <div class="relative flex max-h-[90dvh] flex-col">
@@ -128,25 +138,33 @@ const categories = [...new Set(items.map((i) => i.category))];
     const chips = root.querySelectorAll<HTMLButtonElement>(".filter-chip");
     const items = root.querySelectorAll<HTMLElement>(".photo-item");
 
+    function applyFilter(filter: string) {
+      chips.forEach((c) => {
+        const active = (c.dataset.filter ?? "all") === filter;
+        c.classList.toggle("is-active", active);
+        c.classList.toggle("bg-ink", active);
+        c.classList.toggle("text-canvas-elevated", active);
+        c.classList.toggle("border-ink", active);
+        c.classList.toggle("bg-canvas-elevated", !active);
+        c.classList.toggle("text-ink-muted", !active);
+        c.classList.toggle("border-line", !active);
+      });
+      items.forEach((item) => {
+        const show = filter === "all" || item.dataset.category === filter;
+        item.classList.toggle("hidden", !show);
+      });
+    }
+
     chips.forEach((chip) => {
       chip.addEventListener("click", () => {
-        const filter = chip.dataset.filter ?? "all";
-        chips.forEach((c) => {
-          const active = c === chip;
-          c.classList.toggle("is-active", active);
-          c.classList.toggle("bg-ink", active);
-          c.classList.toggle("text-canvas-elevated", active);
-          c.classList.toggle("border-ink", active);
-          c.classList.toggle("bg-canvas-elevated", !active);
-          c.classList.toggle("text-ink-muted", !active);
-          c.classList.toggle("border-line", !active);
-        });
-        items.forEach((item) => {
-          const show = filter === "all" || item.dataset.category === filter;
-          item.classList.toggle("hidden", !show);
-        });
+        applyFilter(chip.dataset.filter ?? "all");
       });
     });
+
+    const requested = new URLSearchParams(window.location.search).get("filter");
+    if (requested && [...chips].some((c) => c.dataset.filter === requested)) {
+      applyFilter(requested);
+    }
 
     const dialog = root.querySelector<HTMLDialogElement>("#lightbox");
     const mediaEl = root.querySelector<HTMLElement>("#lightbox-media");
@@ -161,18 +179,27 @@ const categories = [...new Set(items.map((i) => i.category))];
       if (mediaEl) mediaEl.innerHTML = "";
     }
 
+    function esc(value: string): string {
+      return value
+        .replace(/&/g, "&amp;")
+        .replace(/"/g, "&quot;")
+        .replace(/</g, "&lt;");
+    }
+
     function openFrom(btn: HTMLElement) {
       if (!dialog || !mediaEl || !titleEl || !descEl || !metaEl) return;
       const title = btn.dataset.title ?? "";
       const description = btn.dataset.description ?? "";
       const src = btn.dataset.src ?? "";
+      const pairSrc = btn.dataset.pairSrc ?? "";
       const isPlaceholder = btn.dataset.placeholder === "true";
       const hue = Number(btn.dataset.hue ?? 30);
       const meta = btn.dataset.meta ?? "";
+      const safeTitle = esc(title);
 
       titleEl.textContent = title;
       descEl.textContent = description;
-      metaEl.textContent = meta;
+      metaEl.textContent = pairSrc ? `${meta}${meta ? " · " : ""}Photo + cartoon` : meta;
 
       if (isPlaceholder || !src) {
         mediaEl.innerHTML = `
@@ -182,9 +209,21 @@ const categories = [...new Set(items.map((i) => i.category))];
               <p class="text-white/90 text-sm">Upload this piece to R2, then set <code class="rounded bg-white/20 px-1">placeholder: false</code> in content.</p>
             </div>
           </div>`;
+      } else if (pairSrc) {
+        mediaEl.innerHTML = `
+          <div class="grid grid-cols-1 bg-stone-900 sm:grid-cols-2">
+            <figure class="flex min-w-0 flex-col">
+              <img src="${esc(pairSrc)}" alt="Photo · ${safeTitle}" draggable="false" class="protect-media max-h-[50dvh] w-full object-contain sm:max-h-[65dvh]" />
+              <figcaption class="px-3 py-2 text-center text-xs uppercase tracking-wider text-white/70">Photo</figcaption>
+            </figure>
+            <figure class="flex min-w-0 flex-col">
+              <img src="${esc(src)}" alt="Cartoon · ${safeTitle}" draggable="false" class="protect-media max-h-[50dvh] w-full object-contain sm:max-h-[65dvh]" />
+              <figcaption class="px-3 py-2 text-center text-xs uppercase tracking-wider text-white/70">Cartoon</figcaption>
+            </figure>
+          </div>`;
       } else {
         mediaEl.innerHTML = `
-          <img src="${src}" alt="${title.replace(/"/g, "&quot;")}" draggable="false" class="protect-media max-h-[65dvh] w-full object-contain bg-stone-900" />`;
+          <img src="${esc(src)}" alt="${safeTitle}" draggable="false" class="protect-media max-h-[65dvh] w-full object-contain bg-stone-900" />`;
       }
 
       document.body.classList.add("lightbox-open");

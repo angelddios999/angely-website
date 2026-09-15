@@ -1,6 +1,6 @@
 ---
 import { isPair, type Artwork } from "../data/portfolio";
-import { mediaThumbUrl, mediaUrl } from "../lib/media";
+import { mediaUrl } from "../lib/media";
 import PlaceholderMedia from "./PlaceholderMedia.astro";
 
 interface Props {
@@ -78,12 +78,10 @@ const categories = [...new Set(items.map((i) => i.category))];
             ) : (
               <div class="protect-media relative aspect-square w-full overflow-hidden bg-canvas">
                 <img
-                  src={mediaThumbUrl(item.key)}
-                  srcset={`${mediaUrl(item.key, { w: 480 })} 480w, ${mediaThumbUrl(item.key)} 800w`}
+                  src={mediaUrl(item.key)}
                   alt=""
                   width={800}
                   height={800}
-                  sizes={compact ? "(min-width: 768px) 30vw, 50vw" : "(min-width: 1024px) 30vw, (min-width: 640px) 45vw, 90vw"}
                   loading="lazy"
                   decoding="async"
                   draggable="false"

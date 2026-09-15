@@ -35,7 +35,7 @@ function toHeroCard(item: Artwork): HeroCard {
     id: item.id,
     title: item.title,
     href: pieceHref(item),
-    src: item.placeholder === true ? null : mediaUrl(item.key, { w: 900 }),
+    src: item.placeholder === true ? null : mediaUrl(item.key),
     placeholder: item.placeholder === true,
     placeholderHue: item.placeholderHue ?? 30,
   };

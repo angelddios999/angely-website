@@ -25,9 +25,6 @@
 			"/media/*"
 		]
 	},
-	"images": {
-		"binding": "IMAGES"
-	},
 	"r2_buckets": [
 		{
 			"binding": "MEDIA_BUCKET",
